@@ -8,7 +8,8 @@ export interface Beat {
 export interface Lane {
   id: string;
   name: string;
-  color: string;       // hex; used for header dot, arrow color, beat accent
+  color: string;
+  group: string;
   beats: Beat[];
 }
 

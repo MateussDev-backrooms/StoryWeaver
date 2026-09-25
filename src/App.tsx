@@ -15,6 +15,7 @@ import {
   RiTimelineView,
 } from "react-icons/ri";
 import { Toolbar } from "./components/timeline/ToolBar";
+import { ModalHost } from "./components/modals/ModalHost";
 
 function App() {
   const { issues } = useValidation();
@@ -41,6 +42,9 @@ function App() {
           </div>
         </div>
       </nav>
+
+      <ModalHost/>
+
       <div className="panel panel-sm flex flex-row m-1">
         {/* Menu bar Right below navbar */}
         <div className="shading-inverted bg-slate-400 p-[0.2rem] flex flex-row text-xl">

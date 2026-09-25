@@ -36,6 +36,23 @@ export function ToolPreview() {
     );
   }
 
+  if (preview.kind === 'cut') {
+  return (
+    <svg
+      className="absolute pointer-events-none overflow-visible z-50"
+      style={{ left: 0, top: 0, width: '100%', height: '100%' }}
+    >
+      <line
+        x1={preview.x1} y1={preview.y1}
+        x2={preview.x2} y2={preview.y2}
+        stroke="#c02020"
+        strokeWidth={2}
+        strokeDasharray="8 4"
+      />
+    </svg>
+  );
+}
+
   if (preview.kind === 'link') {
     let laneIndex = -1;
     let beat = null;

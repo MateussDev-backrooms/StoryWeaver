@@ -1,6 +1,6 @@
 import { deleteTool } from './delete';
 import type { Tool, ToolContext, ToolGesture } from './types';
-import { RiCursorFill, RiDeleteBack2Fill, RiDeleteBin2Fill, RiQuillPenFill, RiShape2Line } from 'react-icons/ri';
+import { RiCursorFill, RiDeleteBack2Fill, RiDeleteBin2Fill, RiQuillPenFill, RiScissors2Fill, RiScissorsFill, RiShape2Line } from 'react-icons/ri';
 import { TbNeedleThread } from 'react-icons/tb';
 import { weaver } from './weaver';
 import { boxSelect } from './boxSelect';
@@ -22,7 +22,7 @@ export const scribe: Tool = {
     return 'draw';
   },
   getCursorIcon: (m) => {
-    if (m.ctrl) return RiDeleteBin2Fill;
+    if (m.ctrl) return RiScissorsFill;
     if (m.alt) return TbNeedleThread;
     if (m.shift) return RiShape2Line;
     return RiQuillPenFill;
@@ -51,11 +51,13 @@ export const scribe: Tool = {
     }
     if (hit.kind === 'arrow') {
       if (modifiers.ctrl) return deleteTool.onPointerDown(ctx);
+      if (modifiers.shift) return boxSelect.onPointerDown(ctx);
       return;
     }
     if (hit.kind === 'empty') {
       if (modifiers.shift) return boxSelect.onPointerDown(ctx);
-      if (modifiers.alt || modifiers.ctrl || modifiers.meta) return;
+      if (modifiers.ctrl) return deleteTool.onPointerDown(ctx);
+      if (modifiers.alt || modifiers.meta) return;
       if (ctx.selection.ids.size > 0) {
         ctx.selection.clear();
         return;

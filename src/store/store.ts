@@ -1,6 +1,6 @@
 // store.ts
 import { create } from "zustand";
-import type { Lane, Project } from "../types/types";
+import type { Beat, Lane, Project } from "../types/types";
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
@@ -11,6 +11,7 @@ const seed: Project = {
       id: "l1",
       name: "Aria",
       color: "#22d3ee",
+      group: "Protagonist",
       beats: [
         { id: "b1", title: "INTRODUCED", content: "", time: 0 },
         { id: "b2", title: "Gets sword", content: "", time: 1 },
@@ -31,7 +32,7 @@ const seed: Project = {
 interface Store {
   project: Project;
   moveBeat: (laneId: string, beatId: string, time: number) => void;
-  addLane: () => void;
+  addLane: (draft: { name: string; color: string; group: string }) => void;
   removeLane: (laneId: string) => void;
   updateLane: (
     laneId: string,
@@ -45,6 +46,8 @@ interface Store {
   deleteBeat: (laneId: string, beatId: string) => void;
   addLink: (from: string, to: string) => void;
   deleteLink: (linkId: string) => void;
+  updateBeatTitle: (beatId: string, title: string) => void;
+  updateBeat: (beatId: string, patch: Partial<Pick<Beat, 'title' | 'content'>>) => void;
 }
 
 export const useStore = create<Store>((set) => ({
@@ -67,14 +70,11 @@ export const useStore = create<Store>((set) => ({
       },
     })),
 
-  addLane: () =>
+  addLane: (draft: { name: string; color: string; group: string }) =>
     set((s) => ({
       project: {
         ...s.project,
-        lanes: [
-          ...s.project.lanes,
-          { id: uid(), name: "New character", color: "#a3a3a3", beats: [] },
-        ],
+        lanes: [...s.project.lanes, { id: uid(), ...draft, beats: [] }],
       },
     })),
 
@@ -176,23 +176,51 @@ export const useStore = create<Store>((set) => ({
       },
     })),
   appendBeat: (laneId, time, connectFrom) => {
-  const id = uid();
-  set((s) => {
-    const links = connectFrom
-      ? [...s.project.links, { id: uid(), from: connectFrom, to: id }]
-      : s.project.links;
-    return {
+    const id = uid();
+    set((s) => {
+      const links = connectFrom
+        ? [...s.project.links, { id: uid(), from: connectFrom, to: id }]
+        : s.project.links;
+      return {
+        project: {
+          ...s.project,
+          lanes: s.project.lanes.map((l) =>
+            l.id !== laneId
+              ? l
+              : {
+                  ...l,
+                  beats: [
+                    ...l.beats,
+                    { id, title: "New beat", content: "", time },
+                  ],
+                },
+          ),
+          links,
+        },
+      };
+    });
+    return id;
+  },
+
+  updateBeatTitle: (beatId, title) =>
+    set((s) => ({
       project: {
         ...s.project,
-        lanes: s.project.lanes.map((l) =>
-          l.id !== laneId
-            ? l
-            : { ...l, beats: [...l.beats, { id, title: 'New beat', content: '', time }] },
-        ),
-        links,
+        lanes: s.project.lanes.map((l) => ({
+          ...l,
+          beats: l.beats.map((b) => (b.id === beatId ? { ...b, title } : b)),
+        })),
       },
-    };
-  });
-  return id;
-},
+    })),
+
+  updateBeat: (beatId, patch) =>
+  set((s) => ({
+    project: {
+      ...s.project,
+      lanes: s.project.lanes.map((l) => ({
+        ...l,
+        beats: l.beats.map((b) => (b.id === beatId ? { ...b, ...patch } : b)),
+      })),
+    },
+  })),
 }));

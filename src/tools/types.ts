@@ -9,7 +9,6 @@ export type HitTarget =
   | { kind: 'beat'; laneId: string; beat: Beat }
   | { kind: 'arrow'; linkId: string }
   | { kind: 'canvas' }
-  | { kind: 'cut'; x1: number; y1: number; x2: number; y2: number };
 
 export interface Modifiers {
   shift: boolean;
@@ -68,7 +67,8 @@ export interface ToolContext {
 export type Preview =
   | { kind: 'box'; x: number; y: number; w: number; h: number }
   | { kind: 'link'; fromBeatId: string; toX: number; toY: number }
-  | { kind: 'ghost'; laneId: string; time: number };
+  | { kind: 'ghost'; laneId: string; time: number }
+  | { kind: 'cut'; x1: number; y1: number; x2: number; y2: number };
 
 export interface ToolGesture {
   onPointerMove?: (ctx: ToolContext) => void;

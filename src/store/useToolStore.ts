@@ -15,6 +15,9 @@ interface ToolState {
   clearSelection: () => void;
   setPreview: (p: Preview | null) => void;
   setFrozenCanvasWidth: (w: number | null) => void;
+
+  editingBeatId: string | null;
+  setEditingBeatId: (id: string | null) => void;
 }
 
 export const useToolStore = create<ToolState>((set, get) => ({
@@ -46,4 +49,7 @@ export const useToolStore = create<ToolState>((set, get) => ({
   setPreview: (p) => set({ preview: p }),
   frozenCanvasWidth: null,
   setFrozenCanvasWidth: (w) => set({ frozenCanvasWidth: w }),
+
+  editingBeatId: null,
+  setEditingBeatId: (id) => set({ editingBeatId: id }),
 }));

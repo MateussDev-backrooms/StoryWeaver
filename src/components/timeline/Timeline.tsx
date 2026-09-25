@@ -10,6 +10,7 @@ import { ToolHost } from "./ToolHost";
 import { ToolPreview } from "./ToolPreview";
 import { Arrows } from "./Arrows";
 import { useToolStore } from "../../store/useToolStore";
+import { useModalStore } from "../../store/useModalStore";
 
 export function Timeline() {
   const lanes = useStore((s) => s.project.lanes);
@@ -26,13 +27,26 @@ export function Timeline() {
   const canvasWidth = frozen ? Math.max(naturalWidth, frozen) : naturalWidth;
   const canvasHeight = RULER_HEIGHT + lanes.length * LANE_HEIGHT;
 
+  const open = useModalStore((s) => s.open);
+
   return (
     <div className="flex flex-col h-full w-full m-0">
       <div className="flex flex-row">
         <div className="shrink-0 border-r border-neutral-800" style={{ width: HEADER_WIDTH }}>
           <div className="border-b border-neutral-800" style={{ height: RULER_HEIGHT }} />
           {lanes.map((lane) => <LaneHeader key={lane.id} lane={lane} />)}
-          <button className="btn" onClick={addLane}>+ Add character</button>
+          <button className="btn" 
+            onClick={() => open('create-character', {
+                onConfirm: (draft) => {
+                useStore.getState().addLane({
+                    name: draft.name,
+                    color: draft.color,
+                    group: draft.group,
+                });
+                },
+            })}>
+            + Add character
+            </button>
         </div>
 
         <div className="flex-1 overflow-x-auto overflow-y-hidden noscroll">

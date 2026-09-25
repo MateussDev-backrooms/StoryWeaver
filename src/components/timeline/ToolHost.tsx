@@ -2,15 +2,27 @@ import { useEffect, useRef, useState } from "react";
 import { useStore } from "../../store/store";
 import { useToolStore } from "../../store/useToolStore";
 import type {
-  Modifiers, ToolContext, ToolGesture, HitTarget, ToolIntent,
+  Modifiers,
+  ToolContext,
+  ToolGesture,
+  HitTarget,
+  ToolIntent,
 } from "../../tools/types";
 import { PIXELS_PER_UNIT, LANE_PADDING_LEFT } from "../../constants";
 import { hitTest } from "../../tools/hitTest";
 import { TOOLS, TOOL_ORDER } from "../../tools/registry";
+import { useModalStore } from "../../store/useModalStore";
 
-interface Props { children: React.ReactNode }
+interface Props {
+  children: React.ReactNode;
+}
 
-const NO_MODS: Modifiers = { shift: false, ctrl: false, alt: false, meta: false };
+const NO_MODS: Modifiers = {
+  shift: false,
+  ctrl: false,
+  alt: false,
+  meta: false,
+};
 
 export function ToolHost({ children }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -27,19 +39,40 @@ export function ToolHost({ children }: Props) {
   useEffect(() => {
     const isEditingField = (t: EventTarget | null) => {
       const el = t as HTMLElement | null;
-      return !!el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable);
+      return (
+        !!el &&
+        (el.tagName === "INPUT" ||
+          el.tagName === "TEXTAREA" ||
+          el.isContentEditable)
+      );
     };
 
     const down = (e: KeyboardEvent) => {
       // Keep modifier state fresh even while typing
-      if (e.key === "Shift" || e.key === "Control" || e.key === "Alt" || e.key === "Meta") {
-        setMods({ shift: e.shiftKey, ctrl: e.ctrlKey, alt: e.altKey, meta: e.metaKey });
+      if (
+        e.key === "Shift" ||
+        e.key === "Control" ||
+        e.key === "Alt" ||
+        e.key === "Meta"
+      ) {
+        setMods({
+          shift: e.shiftKey,
+          ctrl: e.ctrlKey,
+          alt: e.altKey,
+          meta: e.metaKey,
+        });
       }
       if (isEditingField(e.target)) return;
 
       // Number keys 1..5 → tool switch
       const idx = parseInt(e.key, 10) - 1;
-      if (!e.ctrlKey && !e.metaKey && !e.altKey && idx >= 0 && idx < TOOL_ORDER.length) {
+      if (
+        !e.ctrlKey &&
+        !e.metaKey &&
+        !e.altKey &&
+        idx >= 0 &&
+        idx < TOOL_ORDER.length
+      ) {
         useToolStore.getState().setActiveTool(TOOL_ORDER[idx]);
         return;
       }
@@ -52,7 +85,9 @@ export function ToolHost({ children }: Props) {
         e.preventDefault();
         const p = useStore.getState();
         for (const id of selection) {
-          const laneId = p.project.lanes.find((l) => l.beats.some((b) => b.id === id))?.id;
+          const laneId = p.project.lanes.find((l) =>
+            l.beats.some((b) => b.id === id),
+          )?.id;
           if (laneId) p.deleteBeat(laneId, id);
         }
         useToolStore.getState().clearSelection();
@@ -67,17 +102,30 @@ export function ToolHost({ children }: Props) {
         const p = useStore.getState();
         const updates: { laneId: string; beatId: string; time: number }[] = [];
         for (const id of selection) {
-          const laneId = p.project.lanes.find((l) => l.beats.some((b) => b.id === id))?.id;
+          const laneId = p.project.lanes.find((l) =>
+            l.beats.some((b) => b.id === id),
+          )?.id;
           if (!laneId) continue;
-          const beat = p.project.lanes.find((l) => l.id === laneId)!.beats.find((b) => b.id === id)!;
-          updates.push({ laneId, beatId: id, time: Math.max(0, beat.time + dir * step) });
+          const beat = p.project.lanes
+            .find((l) => l.id === laneId)!
+            .beats.find((b) => b.id === id)!;
+          updates.push({
+            laneId,
+            beatId: id,
+            time: Math.max(0, beat.time + dir * step),
+          });
         }
         if (updates.length) p.moveBeats(updates);
       }
     };
 
     const up = (e: KeyboardEvent) => {
-      setMods({ shift: e.shiftKey, ctrl: e.ctrlKey, alt: e.altKey, meta: e.metaKey });
+      setMods({
+        shift: e.shiftKey,
+        ctrl: e.ctrlKey,
+        alt: e.altKey,
+        meta: e.metaKey,
+      });
     };
 
     window.addEventListener("keydown", down);
@@ -114,27 +162,42 @@ export function ToolHost({ children }: Props) {
     const time = laneEl
       ? Math.max(
           0,
-          (canvasX - (laneEl.getBoundingClientRect().left - rect.left) - LANE_PADDING_LEFT) /
+          (canvasX -
+            (laneEl.getBoundingClientRect().left - rect.left) -
+            LANE_PADDING_LEFT) /
             PIXELS_PER_UNIT,
         )
       : null;
 
-    const modifiers: Modifiers = frozen && startModsRef.current
-      ? startModsRef.current
-      : { shift: e.shiftKey, ctrl: e.ctrlKey, alt: e.altKey, meta: e.metaKey };
+    const modifiers: Modifiers =
+      frozen && startModsRef.current
+        ? startModsRef.current
+        : {
+            shift: e.shiftKey,
+            ctrl: e.ctrlKey,
+            alt: e.altKey,
+            meta: e.metaKey,
+          };
 
     const p = useStore.getState();
 
     return {
       hit,
       pointer: {
-        clientX, clientY, canvasX, canvasY,
-        rootX: rect.left, rootY: rect.top,
-        laneId, time,
+        clientX,
+        clientY,
+        canvasX,
+        canvasY,
+        rootX: rect.left,
+        rootY: rect.top,
+        laneId,
+        time,
       },
       modifiers,
       selection: {
-        get ids() { return useToolStore.getState().selection; },
+        get ids() {
+          return useToolStore.getState().selection;
+        },
         set: (ids) => useToolStore.getState().setSelection([...ids]),
         add: (id) => useToolStore.getState().addToSelection(id),
         remove: (id) => useToolStore.getState().removeFromSelection(id),
@@ -164,9 +227,16 @@ export function ToolHost({ children }: Props) {
 
   const onPointerDown = (e: React.PointerEvent) => {
     if (e.button !== 0) return;
-    const hit = hitTest(e, rootRef.current!, findBeat);
+
+    // Skip if the user is typing in a beat title input.
+    const target = e.target as HTMLElement;
+    if (target.closest("input, textarea, [contenteditable]")) return;
+    const hit = hitTest(e, rootRef.current!, useStore.getState().project);
     startModsRef.current = {
-      shift: e.shiftKey, ctrl: e.ctrlKey, meta: e.metaKey, alt: e.altKey,
+      shift: e.shiftKey,
+      ctrl: e.ctrlKey,
+      meta: e.metaKey,
+      alt: e.altKey,
     };
     setPointer({ x: e.clientX, y: e.clientY });
 
@@ -176,7 +246,8 @@ export function ToolHost({ children }: Props) {
 
     if (gesture) {
       const canvasEl = rootRef.current?.firstElementChild as HTMLElement | null;
-      if (canvasEl) useToolStore.getState().setFrozenCanvasWidth(canvasEl.offsetWidth);
+      if (canvasEl)
+        useToolStore.getState().setFrozenCanvasWidth(canvasEl.offsetWidth);
     }
 
     rootRef.current!.setPointerCapture(e.pointerId);
@@ -184,7 +255,7 @@ export function ToolHost({ children }: Props) {
 
   const onPointerMove = (e: React.PointerEvent) => {
     setPointer({ x: e.clientX, y: e.clientY });
-    const hit = hitTest(e, rootRef.current!, findBeat);
+    const hit = hitTest(e, rootRef.current!, useStore.getState().project);
 
     if (gestureRef.current?.onPointerMove) {
       gestureRef.current.onPointerMove(buildContext(e, hit, true));
@@ -195,7 +266,7 @@ export function ToolHost({ children }: Props) {
 
   const onPointerUp = (e: React.PointerEvent) => {
     if (gestureRef.current?.onPointerUp) {
-      const hit = hitTest(e, rootRef.current!, findBeat);
+      const hit = hitTest(e, rootRef.current!, useStore.getState().project);
       gestureRef.current.onPointerUp(buildContext(e, hit, true));
     }
     gestureRef.current = null;
@@ -204,14 +275,29 @@ export function ToolHost({ children }: Props) {
     useToolStore.getState().setFrozenCanvasWidth(null);
   };
 
+  const onDoubleClick = (e: React.MouseEvent) => {
+    const hit = hitTest(
+      e as any,
+      rootRef.current!,
+      useStore.getState().project,
+    );
+    if (hit.kind === "beat") {
+      useModalStore.getState().open("edit-beat", {
+        laneId: hit.laneId,
+        beatId: hit.beat.id,
+      });
+    }
+  };
+
   const onPointerLeave = () => setPointer(null);
 
   // ── intent & cursor ───────────────────────────────────────
   // During a gesture, freeze the modifiers used for styling so that
   // releasing Ctrl mid-drag doesn't flip the hover style back.
-  const styleMods = gestureActive && startModsRef.current ? startModsRef.current : mods;
+  const styleMods =
+    gestureActive && startModsRef.current ? startModsRef.current : mods;
   const tool = TOOLS[activeTool];
-  const intent: ToolIntent = tool.intent?.(styleMods) ?? 'neutral';
+  const intent: ToolIntent = tool.intent?.(styleMods) ?? "neutral";
   const CursorIcon = tool.getCursorIcon?.(styleMods) ?? null;
 
   return (
@@ -224,6 +310,7 @@ export function ToolHost({ children }: Props) {
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
       onPointerLeave={onPointerLeave}
+      onDoubleClick={onDoubleClick}
     >
       {children}
 
