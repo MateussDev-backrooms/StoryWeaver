@@ -9,11 +9,11 @@ interface Props {
   beat: BeatType;
   accent: string;
   hasIssue?: boolean;
+  role?: 'intro' | 'outro';
 }
 
-export function BeatCard({ beat, accent, hasIssue }: Props) {
+export function BeatCard({ beat, accent, hasIssue, role }: Props) {
   const selected = useToolStore((s) => s.selection.has(beat.id));
-
   const x = LANE_PADDING_LEFT + beat.time * PIXELS_PER_UNIT;
   const y = (LANE_HEIGHT - BEAT_HEIGHT) / 2;
 
@@ -23,12 +23,14 @@ export function BeatCard({ beat, accent, hasIssue }: Props) {
         'beat-card absolute select-none panel px-3 py-2 overflow-hidden cursor-grab',
         selected ? 'beat-selected' : '',
         hasIssue ? 'beat-error' : '',
+        role === 'intro' ? 'beat-intro' : '',
+        role === 'outro' ? 'beat-outro' : '',
       ].join(' ')}
       style={{ left: x, top: y, width: BEAT_WIDTH, height: BEAT_HEIGHT }}
       data-beat-id={beat.id}
     >
       <span
-        className="absolute left-0 top-0 bottom-0 w-1"
+        className="absolute left-0 top-0 bottom-0 w-2"
         style={{ backgroundColor: hasIssue ? '#c02020' : accent }}
       />
       <span className="beat-pivot beat-pivot-left" />

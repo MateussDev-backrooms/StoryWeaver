@@ -38,6 +38,7 @@ interface Store {
     patch: Partial<Pick<Lane, "name" | "color">>,
   ) => void;
   addBeat: (laneId: string, time: number) => string;
+  appendBeat: (laneId: string, time: number, connectFrom?: string) => string;
   moveBeats: (
     updates: { laneId: string; beatId: string; time: number }[],
   ) => void;
@@ -174,4 +175,24 @@ export const useStore = create<Store>((set) => ({
         links: s.project.links.filter((k) => k.id !== linkId),
       },
     })),
+  appendBeat: (laneId, time, connectFrom) => {
+  const id = uid();
+  set((s) => {
+    const links = connectFrom
+      ? [...s.project.links, { id: uid(), from: connectFrom, to: id }]
+      : s.project.links;
+    return {
+      project: {
+        ...s.project,
+        lanes: s.project.lanes.map((l) =>
+          l.id !== laneId
+            ? l
+            : { ...l, beats: [...l.beats, { id, title: 'New beat', content: '', time }] },
+        ),
+        links,
+      },
+    };
+  });
+  return id;
+},
 }));

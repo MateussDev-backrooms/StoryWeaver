@@ -2,12 +2,14 @@ import type { ComponentType } from 'react';
 import type { Beat } from '../types/types';
 
 export type ToolId = 'scribing' | 'quill' | 'box-select' | 'delete' | 'weaver';
+export type ToolIntent = 'neutral' | 'draw' | 'select' | 'delete' | 'link';
 
 export type HitTarget =
   | { kind: 'empty'; laneId: string; time: number }
   | { kind: 'beat'; laneId: string; beat: Beat }
   | { kind: 'arrow'; linkId: string }
-  | { kind: 'canvas' };
+  | { kind: 'canvas' }
+  | { kind: 'cut'; x1: number; y1: number; x2: number; y2: number };
 
 export interface Modifiers {
   shift: boolean;
@@ -19,9 +21,12 @@ export interface Modifiers {
 export interface PointerInfo {
   clientX: number;
   clientY: number;
-  /** Position in canvas coordinates (already scroll-adjusted). */
+  /** Canvas position */
   canvasX: number;
   canvasY: number;
+  /** Root position */
+  rootX: number;
+  rootY: number;
   /** Current lane under the pointer, or null if outside any lane. */
   laneId: string | null;
   /** Current time under the pointer, or null if outside any lane. */
@@ -75,6 +80,14 @@ export interface Tool {
   label: string;
   icon: ComponentType<{ className?: string }>;
   cursor?: string;
-  /** Called once at pointerdown. Return a gesture to keep receiving events. */
+
+  /** Which hover style this tool wants given current modifiers. */
+  intent?: (mods: Modifiers) => ToolIntent;
+
+  /** Icon to render next to the cursor. Null = no icon. */
+  getCursorIcon?: (mods: Modifiers) => ComponentType<{ className?: string }> | null;
+
+
   onPointerDown: (ctx: ToolContext) => ToolGesture | void;
+  onHover?: (ctx: ToolContext) => void;
 }

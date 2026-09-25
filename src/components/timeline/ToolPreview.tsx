@@ -3,6 +3,7 @@ import { useToolStore } from '../../store/useToolStore';
 import {
   LANE_HEIGHT, LANE_PADDING_LEFT, PIXELS_PER_UNIT,
   BEAT_HEIGHT, BEAT_WIDTH,
+  RULER_HEIGHT,
 } from '../../constants';
 import { useStore } from '../../store/store';
 
@@ -28,7 +29,7 @@ export function ToolPreview() {
         className="beat-ghost panel absolute pointer-events-none"
         style={{
           left: LANE_PADDING_LEFT + preview.time * PIXELS_PER_UNIT,
-          top: laneIndex * LANE_HEIGHT + (LANE_HEIGHT - BEAT_HEIGHT) / 2,
+          top: (laneIndex) * LANE_HEIGHT + LANE_HEIGHT/2 + (LANE_HEIGHT - BEAT_HEIGHT)/2,
           width: BEAT_WIDTH, height: BEAT_HEIGHT,
         }}
       />
@@ -36,7 +37,6 @@ export function ToolPreview() {
   }
 
   if (preview.kind === 'link') {
-    // Locate the source beat
     let laneIndex = -1;
     let beat = null;
     for (let i = 0; i < lanes.length; i++) {
@@ -45,23 +45,22 @@ export function ToolPreview() {
     }
     if (!beat || laneIndex < 0) return null;
 
+    // Anchor at the right edge midpoint of the source beat
     const x1 = LANE_PADDING_LEFT + beat.time * PIXELS_PER_UNIT + BEAT_WIDTH;
-    const y1 = laneIndex * LANE_HEIGHT + LANE_HEIGHT / 2;
+    const y1 = RULER_HEIGHT + laneIndex * LANE_HEIGHT + LANE_HEIGHT / 2;
     const x2 = preview.toX;
     const y2 = preview.toY;
-    const cx = (x1 + x2) / 2;
 
     return (
       <svg
-        className="absolute inset-0 pointer-events-none overflow-visible"
-        style={{ width: '100%', height: '100%' }}
+        className="absolute pointer-events-none overflow-visible z-50"
+        style={{ left: 0, top: 0, width: '100%', height: '100%' }}
       >
-        <path
-          d={`M ${x1} ${y1} C ${cx} ${y1}, ${cx} ${y2}, ${x2} ${y2}`}
-          fill="none"
+        <line
+          x1={x1} y1={y1} x2={x2} y2={y2}
           stroke="#0066ff"
           strokeWidth={1.5}
-          strokeDasharray="6 4"
+          strokeDasharray="8 4"
         />
       </svg>
     );

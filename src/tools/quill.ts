@@ -8,6 +8,27 @@ export const quill: Tool = {
   icon: RiQuillPenFill,
   cursor: 'crosshair',
 
+  intent: () => 'draw',
+  getCursorIcon: () => RiQuillPenFill,
+  
+  onHover: (ctx) => {
+    // Ghost follows the cursor on empty lane space, unless a modifier
+    // is held (those imply a different tool or a different intent).
+    if (ctx.modifiers.shift || ctx.modifiers.alt || ctx.modifiers.ctrl || ctx.modifiers.meta) {
+      ctx.setPreview(null);
+      return;
+    }
+    if (ctx.hit.kind === 'empty' && ctx.selection.ids.size == 0) {
+      ctx.setPreview({
+        kind: 'ghost',
+        laneId: ctx.hit.laneId,
+        time: snap(ctx.hit.time),
+      });
+    } else {
+      ctx.setPreview(null);
+    }
+  },
+
   onPointerDown: (ctx) => {
     // Only acts on empty lane space
     if (ctx.hit.kind === 'empty') {

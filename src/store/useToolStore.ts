@@ -5,6 +5,7 @@ interface ToolState {
   activeTool: ToolId;
   selection: Set<string>;
   preview: Preview | null;
+  frozenCanvasWidth: number | null;
 
   setActiveTool: (id: ToolId) => void;
   addToSelection: (id: string) => void;
@@ -13,6 +14,7 @@ interface ToolState {
   setSelection: (ids: string[]) => void;
   clearSelection: () => void;
   setPreview: (p: Preview | null) => void;
+  setFrozenCanvasWidth: (w: number | null) => void;
 }
 
 export const useToolStore = create<ToolState>((set, get) => ({
@@ -39,8 +41,9 @@ export const useToolStore = create<ToolState>((set, get) => ({
       return { selection };
     }),
 
-  setSelection: (ids: Iterable<string>) =>
-  set({ selection: new Set(ids) }),
+  setSelection: (ids: Iterable<string>) => set({ selection: new Set(ids) }),
   clearSelection: () => set({ selection: new Set() }),
   setPreview: (p) => set({ preview: p }),
+  frozenCanvasWidth: null,
+  setFrozenCanvasWidth: (w) => set({ frozenCanvasWidth: w }),
 }));

@@ -5,11 +5,15 @@
 :root {
 	--base-color: rgb(209, 209, 209);
 	--base-color-hover: rgb(230, 230, 230);
-	--dark-base: rgb(172, 172, 172);
-	--vivid-gradient: linear-gradient(90deg,rgba(255, 0, 255, 1) 0%, rgba(0, 255, 255, 1) 100%);
-
   --base-highlight: rgba(255, 255, 255, 0.5);
   --base-shadow: rgba(0, 0, 0, 0.5);
+
+	--base-dark: rgb(172, 172, 172);
+
+  /* Gradientz */
+	--gradient-vivid: linear-gradient(90deg,rgba(255, 0, 255, 1) 0%, rgba(0, 255, 255, 1) 100%);
+  --gradient-positive: linear-gradient(90deg,rgba(0, 255, 51, 1) 0%, rgba(0, 255, 106, 1) 100%);
+  --gradient-negative: linear-gradient(90deg,rgba(255, 0, 0, 1) 0%, rgba(247, 40, 116, 1) 100%);
 }
 
 
@@ -142,7 +146,7 @@ body {
   width: 10px;
   height: 10px;
   transform: translateY(-50%);
-  background: var(--dark-base);
+  background: var(--base-dark);
   border-bottom: 2px solid var(--base-highlight);
 	border-right: 2px solid var(--base-highlight);
   border-left: 2px solid var(--base-shadow);
@@ -157,7 +161,7 @@ body {
 .beat-card:hover .beat-pivot { opacity: 1; }
 
 .beat-ghost {
-  opacity: 0.5;
+  opacity: 0.2;
   pointer-events: none;
   border-style: dashed;
 }
@@ -170,10 +174,11 @@ body {
   font-size: 1.5rem;
   font-weight: bold;
   border-style: dashed;
-  opacity: 0.6;
+  opacity: 0.4;
+  z-index: 100;
   transition: opacity 0.15s ease-out;
 }
-.beat-add:hover { opacity: 1; }
+.beat-add:hover { opacity: 0.6; }
 
 .lane-placing,
 .lane-placing * {
@@ -183,7 +188,7 @@ body {
 /* ── Toolbar active tool ─────────────────────────────────── */
 
 .btn-tab-selected {
-  background: var(--base-color-hover);
+  background: var(--gradient-vivid);
   border-top: 2px solid var(--base-shadow);
   border-left: 2px solid var(--base-shadow);
   border-right: 2px solid var(--base-highlight);
@@ -200,4 +205,62 @@ body {
 
 .beat-selected.beat-error {
   outline-color: #c02020;
+}
+
+/* ── Hover intent styles (see ToolHost data-intent) ──────── */
+
+[data-intent="delete"] .beat-card:hover {
+  opacity: 0.55;
+  outline: 2px solid #c02020;
+  outline-offset: -1px;
+}
+[data-intent="delete"] .beat-card:hover * {
+  color: #c02020 !important;
+  text-decoration: line-through;
+}
+[data-intent="delete"] .beat-card:hover .beat-pivot { opacity: 0 !important; }
+
+[data-intent="link"] .beat-card:hover {
+  outline: 2px dashed #0066ff;
+  outline-offset: -2px;
+}
+
+[data-intent="select"] .beat-card:hover,
+[data-intent="draw"] .beat-card:hover {
+  text-decoration: dashed;
+}
+
+/* ── Cursor badge ────────────────────────────────────────── */
+
+.tool-cursor {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 25px;
+  height: 25px;
+  color: #3d3d3d;
+  background: var(--base-color);
+  border-top: 2px solid var(--base-highlight);
+  border-left: 2px solid var(--base-highlight);
+  border-right: 2px solid var(--base-shadow);
+  border-bottom: 2px solid var(--base-shadow);
+  opacity: 0.85;
+}
+
+/* ── Arc bookends ────────────────────────────────────────── */
+
+.beat-intro {
+  box-shadow: inset 0 3px 0 #1cb724;
+  background-color: #81dd65;
+}
+.beat-outro {
+  box-shadow: inset 0 -3px 0 #b71c1c;
+  background-color: #e48080;
+}
+.beat-intro.beat-error,
+.beat-outro.beat-error {
+  box-shadow: inherit;   /* error outline wins */
 }

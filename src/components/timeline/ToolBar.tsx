@@ -10,13 +10,14 @@ export function Toolbar() {
     <div className="flex flex-row items-center">
       {TOOL_ORDER.map((id) => {
         const tool = TOOLS[id];
+        const index: number = TOOL_ORDER.indexOf(id);
         const Icon = tool.icon;
         return (
           <button
             key={id}
             className={`btn btn-sm flex flex-row items-center gap-1 ${active === id ? 'btn-tab-selected' : ''}`}
             onClick={() => setActive(id)}
-            title={tool.label}
+            title={`${tool.label} (${index + 1})`}
           >
             <Icon className="text-base" />
           </button>
