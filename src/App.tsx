@@ -1,11 +1,12 @@
-import { useStore } from './store';
+import { useStore } from './store/store';
 import './App.css'
 import { Timeline } from './components/timeline/Timeline'
 import { useValidation } from './hooks/useValidation';
 import { ErrorPanel } from './components/error/ErrorPanel';
+import { RiDeleteBack2Fill, RiPencilLine, RiPenNibFill, RiPieChart2Line, RiQuillPenFill, RiShape2Line, RiTimelineView } from 'react-icons/ri';
+import { Toolbar } from './components/timeline/ToolBar';
 
 function App() {
-  const addLane = useStore((s: { addLane: any; }) => s.addLane);
   const { issues } = useValidation();
 
   return (
@@ -15,20 +16,26 @@ function App() {
 
         <div className="mx-auto">
             <div className="flex flex-row">
-                <button className="btn">Timeline</button>
-                <button className="btn">Column view</button>
-                <button className="btn">Character builder</button>
-                <button className="btn">Statistics</button>
+                <button className="btn btn-tab-selected flex flex-row items-center"> <RiTimelineView className='m-1'></RiTimelineView> Timeline</button>
+                <button className="btn flex flex-row items-center"> <RiPencilLine className='m-1'></RiPencilLine> Narrative</button>  
+                <button className="btn flex flex-row items-center"> <RiPieChart2Line className='m-1'></RiPieChart2Line> Statistics</button>
             </div>
         </div>
 
       </nav>
-        <div className="panel flex flex-row m-1">
-          {/* Menu bar Right below navbar */}
-          <button className="btn" onClick={addLane}>+ Lane</button>
+      <div className="panel panel-sm flex flex-row m-1">
+        {/* Menu bar Right below navbar */}
+
+        {/* Toolbar */}
+        <div className="shading-inverted bg-slate-500 p-[0.2rem] flex flex-row text-xl">
+          <Toolbar></Toolbar>
         </div>
-      <div className="flex flex-row timeline">
+      </div>
+      <div className="timeline h-[80vh] shading-inverted p-0 m-1 bg-[#bbbbbb] overflow-y-scroll">
         <Timeline/>
+      </div>
+      <div className="panel flex flex-row m-1">
+        {/* Footer */}
       </div>
       
       <ErrorPanel issues={issues} />

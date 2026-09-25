@@ -6,11 +6,7 @@
 	--base-color: rgb(209, 209, 209);
 	--base-color-hover: rgb(230, 230, 230);
 	--dark-base: rgb(172, 172, 172);
-	--vivid-gradient: qlineargradient(
-        x1: 0, y1: 0, x2: 1, y2: 0,
-        stop: 0.0 rgba(255, 0, 255, 255),
-        stop: 1.0 rgba(0, 255, 255, 255)
-    );
+	--vivid-gradient: linear-gradient(90deg,rgba(255, 0, 255, 1) 0%, rgba(0, 255, 255, 1) 100%);
 
   --base-highlight: rgba(255, 255, 255, 0.5);
   --base-shadow: rgba(0, 0, 0, 0.5);
@@ -41,6 +37,10 @@ body {
   border-top: 2px solid var(--base-shadow);
 }
 
+.frame-sm {
+  padding: 0.33rem;
+}
+
 .panel {
   padding: 0.75rem;
   background: var(--base-color);
@@ -49,6 +49,10 @@ body {
 	border-left: 2px solid var(--base-highlight);
   border-right: 2px solid var(--base-shadow);
   border-bottom: 2px solid var(--base-shadow);
+}
+
+.panel-sm {
+  padding: 0.33rem;
 }
 
 .shading {
@@ -94,6 +98,11 @@ body {
 
 .timeline {
   user-select: none;
+  scrollbar-width: thin;
+}
+
+.noscroll {
+  scrollbar-width: none;
 }
 
 .beat-error {
@@ -126,7 +135,6 @@ body {
 .error-dot-error { background: #c02020; }
 .error-dot-warn  { background: #c08a20; }
 
-/* ── Connection pivots (right now inert) ─────────────────── */
 
 .beat-pivot {
   position: absolute;
@@ -135,28 +143,24 @@ body {
   height: 10px;
   transform: translateY(-50%);
   background: var(--dark-base);
-  border-top: 1px solid var(--base-highlight);
-  border-left: 1px solid var(--base-highlight);
-  border-right: 1px solid var(--base-shadow);
-  border-bottom: 1px solid var(--base-shadow);
+  border-bottom: 2px solid var(--base-highlight);
+	border-right: 2px solid var(--base-highlight);
+  border-left: 2px solid var(--base-shadow);
+  border-top: 2px solid var(--base-shadow);
   opacity: 0;
   transition: opacity 0.15s ease-out;
-  pointer-events: none;   /* flip to auto when you wire up link-drawing */
+  pointer-events: none;
   z-index: 5;
 }
 .beat-pivot-left  { left: -6px; }
 .beat-pivot-right { right: -6px; }
 .beat-card:hover .beat-pivot { opacity: 1; }
 
-/* ── Shift-place ghost ───────────────────────────────────── */
-
 .beat-ghost {
   opacity: 0.5;
   pointer-events: none;
   border-style: dashed;
 }
-
-/* ── Trailing "+ add beat" button ────────────────────────── */
 
 .beat-add {
   display: flex;
@@ -171,9 +175,29 @@ body {
 }
 .beat-add:hover { opacity: 1; }
 
-/* ── Lane in placing mode ────────────────────────────────── */
-
 .lane-placing,
 .lane-placing * {
   cursor: crosshair !important;
+}
+
+/* ── Toolbar active tool ─────────────────────────────────── */
+
+.btn-tab-selected {
+  background: var(--base-color-hover);
+  border-top: 2px solid var(--base-shadow);
+  border-left: 2px solid var(--base-shadow);
+  border-right: 2px solid var(--base-highlight);
+  border-bottom: 2px solid var(--base-highlight);
+}
+
+/* ── Selected beat ───────────────────────────────────────── */
+
+.beat-selected {
+  outline: 3px solid #FF00FF;
+  outline-offset: 0px;
+  z-index: 50;
+}
+
+.beat-selected.beat-error {
+  outline-color: #c02020;
 }

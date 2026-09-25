@@ -4,7 +4,7 @@ import {
   BEAT_WIDTH, BEAT_HEIGHT, LANE_HEIGHT, LANE_PADDING_LEFT, PIXELS_PER_UNIT,
 } from '../../constants';
 import type { Lane as LaneType } from '../../types/types';
-import { useStore } from '../../store';
+import { useStore } from '../../store/store';
 import { BeatCard } from '../beat/BeatCard';
 import { Arrow } from '../common/Arrow';
 
@@ -16,42 +16,11 @@ interface Props {
 export function Lane({ lane, beatIssueIds }: Props) {
   const moveBeat = useStore((s) => s.moveBeat);
   const addBeat  = useStore((s) => s.addBeat);
+  const addLink = useStore((s) => s.addLink)
   const allLinks = useStore((s) => s.project.links);
 
   const [shiftHeld, setShiftHeld] = useState(false);
   const [mouseX, setMouseX] = useState<number | null>(null);
-
-  useEffect(() => {
-    const down = (e: KeyboardEvent) => { if (e.key === 'Shift') setShiftHeld(true); };
-    const up   = (e: KeyboardEvent) => {
-      if (e.key === 'Shift') { setShiftHeld(false); setMouseX(null); }
-    };
-    window.addEventListener('keydown', down);
-    window.addEventListener('keyup', up);
-    return () => {
-      window.removeEventListener('keydown', down);
-      window.removeEventListener('keyup', up);
-    };
-  }, []);
-
-  // Derived ghost time — null means "don't render preview"
-  const ghostTime =
-    shiftHeld && mouseX !== null
-      ? Math.max(0, Math.round(((mouseX - LANE_PADDING_LEFT) / PIXELS_PER_UNIT) * 4) / 4)
-      : null;
-
-  const onMouseMove = (e: React.MouseEvent) => {
-    if (!shiftHeld) return;                     // skip state updates when not placing
-    const rect = e.currentTarget.getBoundingClientRect();
-    setMouseX(e.clientX - rect.left);
-  };
-  const onMouseLeave = () => setMouseX(null);
-
-  const onMouseDown = (e: React.MouseEvent) => {
-    if (!shiftHeld || ghostTime === null) return;
-    e.preventDefault();
-    addBeat(lane.id, ghostTime);
-  };
 
   const markerId = `arrowhead-${lane.id}`;
   const beatMap = new Map(lane.beats.map((b) => [b.id, b]));
@@ -64,7 +33,8 @@ export function Lane({ lane, beatIssueIds }: Props) {
     .filter((x): x is NonNullable<typeof x> => x !== null);
 
   const maxTime  = lane.beats.reduce((m, b) => Math.max(m, b.time), 0);
-  const plusTime = maxTime + 1;
+  let plusTime = maxTime + 1;
+  if(beatMap.size == 0) plusTime = 0;
 
   return (
     <div
@@ -73,9 +43,7 @@ export function Lane({ lane, beatIssueIds }: Props) {
         shiftHeld ? 'lane-placing' : '',
       ].join(' ')}
       style={{ height: LANE_HEIGHT }}
-      onMouseMove={onMouseMove}
-      onMouseLeave={onMouseLeave}
-      onMouseDown={onMouseDown}
+      data-lane-id={lane.id}
     >
       <svg className="absolute inset-0 pointer-events-none overflow-visible"
            style={{ width: '100%', height: LANE_HEIGHT }}>
@@ -86,8 +54,8 @@ export function Lane({ lane, beatIssueIds }: Props) {
           </marker>
         </defs>
         {laneLinks.map(({ link, from, to }) => (
-          <Arrow key={link.id} from={from} to={to}
-                 markerId={markerId} color={lane.color} />
+          <Arrow link={link} from={from} to={to}
+                 color={lane.color} />
         ))}
       </svg>
 
@@ -97,7 +65,6 @@ export function Lane({ lane, beatIssueIds }: Props) {
           beat={beat}
           accent={lane.color}
           hasIssue={beatIssueIds.has(beat.id)}
-          onMove={(id, time) => moveBeat(lane.id, id, time)}
         />
       ))}
 
@@ -107,7 +74,7 @@ export function Lane({ lane, beatIssueIds }: Props) {
         style={{
           left: LANE_PADDING_LEFT + plusTime * PIXELS_PER_UNIT,
           top: (LANE_HEIGHT - BEAT_HEIGHT) / 2,
-          width: BEAT_WIDTH,
+          width: BEAT_HEIGHT,
           height: BEAT_HEIGHT,
         }}
         onMouseDown={(e) => e.stopPropagation()}
@@ -116,19 +83,6 @@ export function Lane({ lane, beatIssueIds }: Props) {
       >
         +
       </button>
-
-      {/* Shift-preview ghost */}
-      {ghostTime !== null && (
-        <div
-          className="beat-ghost panel absolute"
-          style={{
-            left: LANE_PADDING_LEFT + ghostTime * PIXELS_PER_UNIT,
-            top: (LANE_HEIGHT - BEAT_HEIGHT) / 2,
-            width: BEAT_WIDTH,
-            height: BEAT_HEIGHT,
-          }}
-        />
-      )}
     </div>
   );
 }

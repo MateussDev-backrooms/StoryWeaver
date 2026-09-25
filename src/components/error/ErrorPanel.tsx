@@ -1,4 +1,3 @@
-// components/errors/ErrorPanel.tsx
 import { useEffect, useState } from 'react';
 import type { Issue } from '../../lib/validation';
 
@@ -23,7 +22,7 @@ export function ErrorPanel({ issues }: Props) {
   const next = () => setIndex((i) => (i + 1) % issues.length);
 
   return (
-    <div className="error-panel panel fixed bottom-2 left-1/2 -translate-x-1/2 z-50 flex flex-row items-center gap-3">
+    <div className="error-panel bg-red-400 shading fixed bottom-2 right-2 z-50 flex flex-row items-center gap-3">
       <span className={`error-dot ${isError ? 'error-dot-error' : 'error-dot-warn'}`} />
 
       <span className="text-sm">{issue.message}</span>

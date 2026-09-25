@@ -1,6 +1,6 @@
 // hooks/useValidation.ts
 import { useMemo } from 'react';
-import { useStore } from '../store';
+import { useStore } from '../store/store';
 import { validateProject, type Issue } from '../lib/validation';
 
 export interface ValidationResult {
