@@ -113,3 +113,24 @@ function distToSegment(
   t = Math.max(0, Math.min(1, t));
   return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
 }
+
+export interface SameLaneEndpoints {
+  laneId: string;
+  from: Beat;
+  to: Beat;
+}
+
+export function getSameLaneEndpoints(
+  linkId: string,
+  project: Project,
+): SameLaneEndpoints | null {
+  const link = project.links.find((l) => l.id === linkId);
+  if (!link) return null;
+
+  for (const lane of project.lanes) {
+    const from = lane.beats.find((b) => b.id === link.from);
+    const to = lane.beats.find((b) => b.id === link.to);
+    if (from && to) return { laneId: lane.id, from, to };
+  }
+  return null;
+}

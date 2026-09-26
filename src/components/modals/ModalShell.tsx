@@ -24,13 +24,10 @@ export function ModalShell({ title, onClose, children, width = 360 }: Props) {
         style={{ width }}
         onPointerDown={(e) => e.stopPropagation()}
       >
-        <div className="modal-titlebar">
+        <div className="modal-titlebar shading-inverted">
           <span className="modal-title">{title}</span>
-          <button className="btn btn-sm modal-close" onClick={onClose}>
-            <RiCloseLine />
-          </button>
         </div>
-        <div className="modal-body">{children}</div>
+        <div className="modal-body bg-slate-300 shading-inverted ">{children}</div>
       </div>
     </div>
   );

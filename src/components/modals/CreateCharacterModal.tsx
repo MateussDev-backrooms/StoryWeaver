@@ -1,17 +1,46 @@
-import { useState } from 'react';
-import { ModalShell } from './ModalShell';
-import type { CreateCharacterProps, CharacterDraft } from '../../store/useModalStore';
+import { useState } from "react";
+import { ModalShell } from "./ModalShell";
+import {
+  type CreateCharacterProps,
+  type CharacterDraft,
+  useModalStore,
+} from "../../store/useModalStore";
+import { RiDeleteBin2Line } from "react-icons/ri";
+import { useStore } from "../../store/store";
 
 interface Props extends CreateCharacterProps {
   __modalId: string;
   __close: () => void;
 }
 
-const PRESETS = ['#22d3ee', '#f87171', '#fbbf24', '#34d399', '#a78bfa', '#ec4899', '#94a3b8'];
-const DEFAULT_DRAFT: CharacterDraft = { name: '', color: PRESETS[0], group: 'Neutral' };
+const PRESETS = [
+  "#22d3ee",
+  "#f87171",
+  "#fbbf24",
+  "#34d399",
+  "#a78bfa",
+  "#ec4899",
+  "#94a3b8",
+];
+const DEFAULT_DRAFT: CharacterDraft = {
+  name: "",
+  color: PRESETS[0],
+  group: "Neutral",
+};
 
-export function CreateCharacterModal({ onConfirm, onCancel, __close }: Props) {
-  const [draft, setDraft] = useState<CharacterDraft>(DEFAULT_DRAFT);
+export function CreateCharacterModal({
+  onConfirm,
+  onCancel,
+  __close,
+  laneEdit,
+}: Props) {
+  const isEditing = laneEdit != undefined;
+
+  const [draft, setDraft] = useState<CharacterDraft>(
+    laneEdit
+      ? { name: laneEdit.name, color: laneEdit.color, group: laneEdit.group }
+      : DEFAULT_DRAFT,
+  );
   const trimmed = draft.name.trim();
   const valid = trimmed.length > 0;
 
@@ -26,20 +55,45 @@ export function CreateCharacterModal({ onConfirm, onCancel, __close }: Props) {
     __close();
   };
 
+  const openModal = useModalStore((s) => s.open);
+
+  const requestDelete = () => {
+    if (!laneEdit) return;
+    openModal("confirm", {
+      title: "Delete character",
+      message:
+        `Delete "${laneEdit.name}"? This removes the lane and all ${laneEdit.beats.length} ` +
+        `of its beats. This cannot be undone.`,
+      confirmLabel: "Delete",
+      onConfirm: () => {
+        useStore.getState().removeLane(laneEdit.id);
+        __close(); // close the create-character modal too
+      },
+    });
+  };
+
   return (
-    <ModalShell title="New character" onClose={cancel}>
+    <ModalShell
+      title={isEditing ? "Edit Character" : "New Character"}
+      onClose={cancel}
+      width={700}
+    >
       <form
         className="flex flex-col gap-2"
-        onSubmit={(e) => { e.preventDefault(); submit(); }}
+        onSubmit={(e) => {
+          e.preventDefault();
+          submit();
+        }}
       >
         <label className="field">
           <span>Name</span>
           <input
             autoFocus
-            className="input"
+            className="input input-big"
+            style={{ backgroundColor: draft.color }}
             value={draft.name}
             onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-            placeholder="Aria"
+            placeholder="John Doe"
           />
         </label>
 
@@ -73,7 +127,7 @@ export function CreateCharacterModal({ onConfirm, onCancel, __close }: Props) {
                 <button
                   key={c}
                   type="button"
-                  className={`swatch ${draft.color === c ? 'swatch-selected' : ''}`}
+                  className={`swatch ${draft.color === c ? "swatch-selected" : ""}`}
                   style={{ background: c }}
                   onClick={() => setDraft({ ...draft, color: c })}
                 />
@@ -83,8 +137,22 @@ export function CreateCharacterModal({ onConfirm, onCancel, __close }: Props) {
         </label>
 
         <div className="flex flex-row justify-end gap-1 mt-2">
-          <button type="button" className="btn" onClick={cancel}>Cancel</button>
-          <button type="submit" className="btn" disabled={!valid}>Create</button>
+          {isEditing && (
+            <button
+              type="button"
+              className="btn mr-auto"
+              onClick={requestDelete}
+              title="Delete character"
+            >
+              <RiDeleteBin2Line />
+            </button>
+          )}
+          <button type="button" className="btn" onClick={cancel}>
+            Cancel
+          </button>
+          <button type="submit" className="btn" disabled={!valid}>
+            {isEditing ? "Confirm" : "Create"}
+          </button>
         </div>
       </form>
     </ModalShell>

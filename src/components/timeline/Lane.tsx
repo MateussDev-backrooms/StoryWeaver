@@ -8,6 +8,7 @@ import {
 import type { Lane as LaneType } from "../../types/types";
 import { useStore } from "../../store/store";
 import { BeatCard } from "../beat/BeatCard";
+import { useToolStore } from "../../store/useToolStore";
 
 interface Props {
   lane: LaneType;
@@ -56,9 +57,10 @@ export function Lane({ lane, beatIssueIds }: Props) {
         onPointerDown={(e) => e.stopPropagation()}
         onClick={(e) => {
           e.stopPropagation();
-          appendBeat(lane.id, plusTime, lastBeat?.id);
+          const newId = appendBeat(lane.id, plusTime, lastBeat?.id);
+          useToolStore.getState().setEditingBeatId(newId);
         }}
-        title="Add beat + connect to previous"
+        title="Add story beat"
       >
         +
       </button>

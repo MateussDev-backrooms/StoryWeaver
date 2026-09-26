@@ -12,22 +12,23 @@ import { Arrows } from "./Arrows";
 import { useToolStore } from "../../store/useToolStore";
 import { useModalStore } from "../../store/useModalStore";
 
+// components/timeline/Timeline.tsx
+import { useVisibleLanes } from '../../hooks/useVisibleLanes';
+
 export function Timeline() {
-  const lanes = useStore((s) => s.project.lanes);
-  const addLane = useStore((s) => s.addLane);
+  const allLanes = useStore((s) => s.project.lanes);
+  const lanes = useVisibleLanes();          // ← filtered
   const { beatIssueIds } = useValidation();
   const frozen = useToolStore((s) => s.frozenCanvasWidth);
+  const openModal = useModalStore((s) => s.open);
 
   const maxTime = lanes.reduce(
     (m, lane) => lane.beats.reduce((mm, b) => Math.max(mm, b.time), m),
     0,
   );
   const naturalWidth = LANE_PADDING_LEFT + (maxTime + 3) * PIXELS_PER_UNIT;
-  // Keep the canvas from shrinking under the cursor mid-drag.
   const canvasWidth = frozen ? Math.max(naturalWidth, frozen) : naturalWidth;
   const canvasHeight = RULER_HEIGHT + lanes.length * LANE_HEIGHT;
-
-  const open = useModalStore((s) => s.open);
 
   return (
     <div className="flex flex-col h-full w-full m-0">
@@ -35,25 +36,23 @@ export function Timeline() {
         <div className="shrink-0 border-r border-neutral-800" style={{ width: HEADER_WIDTH }}>
           <div className="border-b border-neutral-800" style={{ height: RULER_HEIGHT }} />
           {lanes.map((lane) => <LaneHeader key={lane.id} lane={lane} />)}
-          <button className="btn" 
-            onClick={() => open('create-character', {
-                onConfirm: (draft) => {
-                useStore.getState().addLane({
-                    name: draft.name,
-                    color: draft.color,
-                    group: draft.group,
-                });
-                },
-            })}>
+          <button
+            className="btn"
+            onClick={() => openModal('create-character', {
+              onConfirm: (draft) => {
+                useStore.getState().addLane({ ...draft });
+              },
+            })}
+          >
             + Add character
-            </button>
+          </button>
         </div>
 
         <div className="flex-1 overflow-x-auto overflow-y-hidden noscroll">
           <ToolHost>
             <div className="relative" style={{ width: canvasWidth, height: canvasHeight }}>
               <Ruler maxTime={maxTime} />
-              <Arrows lanes={lanes} />
+              <Arrows lanes={lanes} allLanes={allLanes} />   {/* ← see below */}
               {lanes.map((lane) => (
                 <Lane key={lane.id} lane={lane} beatIssueIds={beatIssueIds} />
               ))}

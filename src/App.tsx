@@ -16,6 +16,7 @@ import {
 } from "react-icons/ri";
 import { Toolbar } from "./components/timeline/ToolBar";
 import { ModalHost } from "./components/modals/ModalHost";
+import { CharacterMenu } from "./components/timeline/menu/CharacterMenu";
 
 function App() {
   const { issues } = useValidation();
@@ -66,6 +67,10 @@ function App() {
         {/* Toolbar */}
         <div className="shading-inverted bg-slate-500 p-[0.2rem] flex flex-row text-xl">
           <Toolbar></Toolbar>
+        </div>
+
+        <div className="ml-auto">
+          <CharacterMenu />
         </div>
       </div>
       <div className="timeline h-[80vh] shading-inverted p-0 m-1 bg-[#bbbbbb] overflow-y-auto">

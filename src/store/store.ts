@@ -36,7 +36,7 @@ interface Store {
   removeLane: (laneId: string) => void;
   updateLane: (
     laneId: string,
-    patch: Partial<Pick<Lane, "name" | "color">>,
+    patch: Partial<Pick<Lane, "name" | "color" | "group">>,
   ) => void;
   addBeat: (laneId: string, time: number) => string;
   appendBeat: (laneId: string, time: number, connectFrom?: string) => string;
@@ -48,6 +48,7 @@ interface Store {
   deleteLink: (linkId: string) => void;
   updateBeatTitle: (beatId: string, title: string) => void;
   updateBeat: (beatId: string, patch: Partial<Pick<Beat, 'title' | 'content'>>) => void;
+  reorderLane: (laneId: string, beforeLaneId: string | null) => void;
 }
 
 export const useStore = create<Store>((set) => ({
@@ -79,12 +80,20 @@ export const useStore = create<Store>((set) => ({
     })),
 
   removeLane: (laneId) =>
-    set((s) => ({
+  set((s) => {
+    const lane = s.project.lanes.find((l) => l.id === laneId);
+    if (!lane) return s;
+    const beatIds = new Set(lane.beats.map((b) => b.id));
+    return {
       project: {
         ...s.project,
         lanes: s.project.lanes.filter((l) => l.id !== laneId),
+        links: s.project.links.filter(
+          (k) => !beatIds.has(k.from) && !beatIds.has(k.to),
+        ),
       },
-    })),
+    };
+  }),
 
   updateLane: (laneId, patch) =>
     set((s) => ({
@@ -223,4 +232,28 @@ export const useStore = create<Store>((set) => ({
       })),
     },
   })),
+
+  reorderLane: (laneId, beforeLaneId) =>
+  set((s) => {
+    const lanes = s.project.lanes;
+    const from = lanes.findIndex((l) => l.id === laneId);
+    if (from < 0) return s;
+
+    const moving = lanes[from];
+    const without = lanes.filter((l) => l.id !== laneId);
+
+    if (beforeLaneId === null) {
+      return { project: { ...s.project, lanes: [...without, moving] } };
+    }
+
+    const to = without.findIndex((l) => l.id === beforeLaneId);
+    if (to < 0) return s;
+
+    return {
+      project: {
+        ...s.project,
+        lanes: [...without.slice(0, to), moving, ...without.slice(to)],
+      },
+    };
+  }),
 }));

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import type { Lane } from '../types/types';
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
@@ -13,6 +14,7 @@ export interface CharacterDraft {
 }
 
 export interface CreateCharacterProps {
+    laneEdit?: Lane;
     onConfirm: (draft: CharacterDraft) => void;
     onCancel?: () => void;
 }

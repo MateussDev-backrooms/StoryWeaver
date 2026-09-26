@@ -48,6 +48,11 @@ export function ToolHost({ children }: Props) {
     };
 
     const down = (e: KeyboardEvent) => {
+      // Alt-alone hijacks focus in Firefox/Vivaldi on Linux.
+      if (e.key === "Alt") {
+        e.preventDefault();
+        e.stopPropagation();
+      }
       // Keep modifier state fresh even while typing
       if (
         e.key === "Shift" ||
@@ -128,11 +133,11 @@ export function ToolHost({ children }: Props) {
       });
     };
 
-    window.addEventListener("keydown", down);
-    window.addEventListener("keyup", up);
+    window.addEventListener("keydown", down, { capture: true });
+    window.addEventListener("keyup", up, { capture: true });
     return () => {
-      window.removeEventListener("keydown", down);
-      window.removeEventListener("keyup", up);
+      window.removeEventListener("keydown", down, { capture: true });
+      window.removeEventListener("keyup", up, { capture: true });
     };
   }, []);
 

@@ -234,6 +234,35 @@ body {
   cursor: inherit;
 }
 
+/* Target highlight during a link gesture */
+[data-intent="link"] .beat-card:hover:not(.beat-link-source) {
+  outline: 2px dashed #0066ff;
+  outline-offset: -2px;
+  background-color: rgba(0, 102, 255, 0.08);
+}
+
+/* Source — the beat the thread is coming from */
+.beat-link-source {
+  outline: 2px dashed #0066ff;
+  outline-offset: -2px;
+}
+
+/* Target — the beat currently under the cursor during a link drag.
+   This is the class that was previously missing. */
+.beat-link-target {
+  outline: 2px solid #0066ff;
+  outline-offset: -2px;
+  background-color: rgba(0, 102, 255, 0.15);
+  box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.25);
+  z-index: 60;
+}
+
+/* Keep the pre-drag Alt-hover as a softer signal */
+[data-intent="link"] .beat-card:hover:not(.beat-link-source):not(.beat-link-target) {
+  outline: 2px dashed #0066ff;
+  outline-offset: -2px;
+}
+
 /* ── Cursor badge ────────────────────────────────────────── */
 
 .tool-cursor {
@@ -293,8 +322,8 @@ body {
   align-items: center;
   justify-content: space-between;
   background: var(--gradient-vivid);
-  margin: -0.75rem -0.75rem 0.75rem -0.75rem;
-  padding: 0.25rem 0.5rem;
+  margin: -0.5rem -0.5rem 0.5rem -0.5rem;
+  padding: 0.5rem;
 }
 
 .modal-title {
@@ -310,7 +339,7 @@ body {
   line-height: 1;
 }
 
-.modal-body { padding: 0; }
+.modal-body { padding: 0.5rem; }
 
 /* ── Form fields ─────────────────────────────────────────── */
 
@@ -338,6 +367,10 @@ body {
 }
 .textarea { resize: vertical; }
 
+.input-big {
+  font-size: 2rem;
+}
+
 .beat-title-input {
   width: 100%;
   height: 100%;
@@ -349,22 +382,130 @@ body {
 }
 
 .colour-input {
-  width: 40px;
-  height: 26px;
+  width: 64px;
+  height: 64px;
   padding: 0;
   border: 2px inset var(--base-shadow);
 }
 
 .swatch {
-  width: 20px;
-  height: 20px;
-  border-top: 1px solid var(--base-highlight);
-  border-left: 1px solid var(--base-highlight);
-  border-right: 1px solid var(--base-shadow);
-  border-bottom: 1px solid var(--base-shadow);
+  width: 32px;
+  height: 32px;
+  border-top: 2px solid var(--base-highlight);
+  border-left: 2px solid var(--base-highlight);
+  border-right: 2px solid var(--base-shadow);
+  border-bottom: 2px solid var(--base-shadow);
   cursor: pointer;
+}
+
+.swatch:hover {
+  transform: translateY(-3px);
 }
 .swatch-selected {
   outline: 2px solid #0066ff;
   outline-offset: 1px;
+}
+
+.lane-drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-left: 4px;
+  background: transparent;
+  border: none;
+  color: rgba(0, 0, 0, 0.4);
+  cursor: grab;
+  padding: 0;
+}
+.lane-drag-handle:hover {
+  color: rgba(0, 0, 0, 0.8);
+}
+.lane-drag-handle:active {
+  cursor: grabbing;
+}
+.lane-dragging {
+  opacity: 0.7;
+  z-index: 100;
+  cursor: grabbing;
+}
+
+/* TODO: Replace this */
+.character-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 280px;
+  padding: 0.4rem;
+  z-index: 8000;
+}
+
+.character-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.2rem 0.3rem 0.4rem;
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+.character-menu-list {
+  max-height: 340px;
+  overflow-y: auto;
+}
+
+.character-menu-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.3rem;
+  font-size: 0.8rem;
+}
+.character-menu-row-hidden {
+  opacity: 0.45;
+}
+
+.character-menu-visibility,
+.character-menu-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #3d3d3d;
+}
+.character-menu-arrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.character-menu-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.character-menu-name { font-weight: 500; }
+.character-menu-group {
+  margin-left: auto;
+  font-size: 0.7rem;
+  opacity: 0.55;
+}
+.character-menu-reorder {
+  display: flex;
+  flex-direction: column;
+  gap: -2px;
+}
+
+.character-menu-empty {
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  opacity: 0.5;
+  text-align: center;
 }

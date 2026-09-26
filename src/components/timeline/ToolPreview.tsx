@@ -62,8 +62,8 @@ export function ToolPreview() {
     }
     if (!beat || laneIndex < 0) return null;
 
-    // Anchor at the right edge midpoint of the source beat
-    const x1 = LANE_PADDING_LEFT + beat.time * PIXELS_PER_UNIT + BEAT_WIDTH;
+    // Anchor at the center of the beat
+    const x1 = LANE_PADDING_LEFT + beat.time * PIXELS_PER_UNIT + BEAT_WIDTH/2;
     const y1 = RULER_HEIGHT + laneIndex * LANE_HEIGHT + LANE_HEIGHT / 2;
     const x2 = preview.toX;
     const y2 = preview.toY;
@@ -73,11 +73,17 @@ export function ToolPreview() {
         className="absolute pointer-events-none overflow-visible z-50"
         style={{ left: 0, top: 0, width: '100%', height: '100%' }}
       >
-        <line
-          x1={x1} y1={y1} x2={x2} y2={y2}
-          stroke="#0066ff"
-          strokeWidth={1.5}
-          strokeDasharray="8 4"
+          <line
+            x1={x1} y1={y1} x2={x2} y2={y2}
+            stroke="#0066ff"
+            strokeWidth={4}
+            strokeDasharray="8 4"
+          />
+        <circle
+        cx={x1} cy={y1} r={5} stroke="#0066ff" fill="#fff" strokeWidth={4}
+        />
+        <circle
+        cx={x2} cy={y2} r={5} stroke="#0066ff" fill="#fff" strokeWidth={4}
         />
       </svg>
     );

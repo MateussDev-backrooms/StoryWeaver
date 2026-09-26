@@ -52,6 +52,7 @@ export const scribe: Tool = {
     if (hit.kind === 'arrow') {
       if (modifiers.ctrl) return deleteTool.onPointerDown(ctx);
       if (modifiers.shift) return boxSelect.onPointerDown(ctx);
+      if (!modifiers.alt && !modifiers.meta) return quill.onPointerDown(ctx);
       return;
     }
     if (hit.kind === 'empty') {
