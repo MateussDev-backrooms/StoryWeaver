@@ -37,11 +37,31 @@ export interface ConfirmProps {
 //Welcome (Blank)
 export interface WelcomeProps {}
 
+//New Project Modal
+export interface NewProjectProps {
+  onConfirm: (meta: { name: string; color: string; icon: string }) => void;
+  onCancel?: () => void;
+}
+
+//Edit Marker
+export interface EditMarkerProps {
+  markerId?: string;
+  initialTime?: number;
+}
+
+//Edit Section
+export interface EditSectionProps {
+  sectionId?: string;
+}
+
 export interface ModalPropsMap {
   'create-character': CreateCharacterProps;
   'edit-beat': EditBeatProps;
   'confirm': ConfirmProps;
   'welcome': WelcomeProps;
+  'new-project': NewProjectProps;
+  'edit-marker': EditMarkerProps;
+  'edit-section': EditSectionProps;
 }
 
 export type ModalType = keyof ModalPropsMap;

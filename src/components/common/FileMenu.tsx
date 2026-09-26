@@ -1,14 +1,25 @@
 // components/timeline/menu/FileMenu.tsx
 import { useEffect, useRef, useState } from "react";
-import { RiFileLine } from "react-icons/ri";
+import {
+  RiFileAddFill,
+  RiFileLine,
+  RiFolderOpenFill,
+  RiMenuFill,
+  RiSave2Fill,
+  RiSave3Fill,
+  RiSettings2Fill,
+} from "react-icons/ri";
 import { useModalStore } from "../../store/useModalStore";
 import { downloadProject, parseProjectFile } from "../../lib/persistence";
 import { useStore } from "../../store/store";
+import { useToastStore } from "../../store/useToastStore";
 
 export function FileMenu() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const openModal = useModalStore((s) => s.open);
 
   useEffect(() => {
     if (!open) return;
@@ -20,42 +31,57 @@ export function FileMenu() {
   }, [open]);
 
   const handleNew = () => {
-    setOpen(false);
-    useModalStore.getState().open("confirm", {
-      title: "New project",
-      message:
-        "Start a new project? Your current work is autosaved, but this action cannot be undone.",
-      confirmLabel: "New project",
-      onConfirm: () => useStore.getState().newProject(),
+    openModal("new-project", {
+      onConfirm: (meta) => {
+        useStore.getState().createProject(meta);
+      },
     });
   };
 
-  const handleSave = () => {
+  const handleExport = () => {
     setOpen(false);
-    downloadProject(useStore.getState().project);
+    const p = useStore.getState().project;
+    downloadProject(p);
+    useToastStore.getState().push({
+      type: "success",
+      message: `Exported "${p.name}". Check your downloads folder.`,
+    });
   };
 
   return (
     <div ref={ref} className="relative">
       <button
-        className={`btn btn-sm flex flex-row items-center gap-1 ${open ? "btn-tab-selected" : ""}`}
+        className={`btn flex flex-row items-center gap-1 ${open ? "btn-tab-selected" : ""}`}
         onClick={() => setOpen((v) => !v)}
         title="File"
       >
-        <RiFileLine />
-        <span className="text-xs">File</span>
+        <RiMenuFill />
       </button>
 
       {open && (
         <div className="file-menu panel">
+          <h4 className="heading-4">Project Name</h4>
           <button className="btn btn-sm" onClick={handleNew}>
+            <RiFileAddFill />
             New Project
           </button>
-          <button className="btn btn-sm" onClick={() => inputRef.current?.click()}>
-            Open Project…
+          <button
+            className="btn btn-sm"
+            onClick={() => inputRef.current?.click()}
+          >
+            <RiFolderOpenFill />
+            Open Project
           </button>
-          <button className="btn btn-sm" onClick={handleSave}>
-            Save Project (Ctrl+S)
+          <button className="btn btn-sm" onClick={handleExport}>
+            <RiSave2Fill />
+            Export Project
+          </button>
+
+          <hr className="my-2"></hr>
+
+          <button className="btn btn-sm">
+            <RiSettings2Fill />
+            Project settings
           </button>
         </div>
       )}

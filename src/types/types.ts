@@ -1,8 +1,9 @@
 export interface Beat {
   id: string;
   title: string;
-  content: string;   // markdown, unused in the card for now
-  time: number;      // THE truth. unitless for now.
+  content: string;
+  time: number;
+  duration: number;
 }
 
 export interface Lane {
@@ -15,12 +16,35 @@ export interface Lane {
 
 export interface Link {
   id: string;
-  from: string;   // beat id
-  to: string;     // beat id
+  from: string;
+  to: string;
+}
+
+export interface Marker {
+  id: string;
+  time: number;
+  name: string;
+  color: string;
+  description: string;
+}
+
+export interface Section {
+  id: string;
+  name: string;
+  color: string;
+  startMarkerId: string;
+  endMarkerId: string;
 }
 
 export interface Project {
-  title: string;
+  schemaVersion: number;
+  id: string;
+  name: string;
+  color: string;
+  icon: string;
+  createdAt: string;
   lanes: Lane[];
   links: Link[];
+  markers: Marker[];
+  sections: Section[];
 }

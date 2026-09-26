@@ -7,21 +7,14 @@ import {
 } from "../../store/useModalStore";
 import { RiDeleteBin2Line } from "react-icons/ri";
 import { useStore } from "../../store/store";
+import { PASTEL_COLOR_PRESETS } from "../../constants";
 
 interface Props extends CreateCharacterProps {
   __modalId: string;
   __close: () => void;
 }
 
-const PRESETS = [
-  "#22d3ee",
-  "#f87171",
-  "#fbbf24",
-  "#34d399",
-  "#a78bfa",
-  "#ec4899",
-  "#94a3b8",
-];
+const PRESETS = PASTEL_COLOR_PRESETS
 const DEFAULT_DRAFT: CharacterDraft = {
   name: "",
   color: PRESETS[0],

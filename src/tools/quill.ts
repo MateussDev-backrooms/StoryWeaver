@@ -1,6 +1,6 @@
 import { RiQuillPenFill } from "react-icons/ri";
 import type { Tool, ToolContext } from "./types";
-import { clickSelect } from "./common";
+import { clickSelect, resizeBeatGesture } from "./common";
 import { useToolStore } from "../store/useToolStore";
 import { getSameLaneEndpoints } from "./hitTest";
 import { useStore } from "../store/store";
@@ -38,6 +38,9 @@ export const quill: Tool = {
   },
 
   onPointerDown: (ctx) => {
+    if (ctx.hit.kind === "beat-resize") {
+      return resizeBeatGesture(ctx);
+    }
     if (ctx.hit.kind === "arrow") {
       const split = getSameLaneEndpoints(
         ctx.hit.linkId,

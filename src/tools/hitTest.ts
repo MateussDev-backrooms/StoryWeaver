@@ -1,8 +1,11 @@
-import type { Beat, Project } from '../types/types';
-import type { HitTarget } from './types';
+import type { Beat, Project } from "../types/types";
+import type { HitTarget } from "./types";
 import {
-  LANE_PADDING_LEFT, PIXELS_PER_UNIT, LANE_HEIGHT, BEAT_WIDTH, RULER_HEIGHT,
-} from '../constants';
+  LANE_PADDING_LEFT,
+  PIXELS_PER_UNIT,
+  LANE_HEIGHT,
+  RULER_HEIGHT,
+} from "../constants";
 
 const ARROW_HIT_THRESHOLD = 8; // px
 
@@ -13,7 +16,8 @@ export function hitTest(
 ): HitTarget {
   const rect = root.getBoundingClientRect();
   return hitTestCanvas(
-    e.clientX, e.clientY,
+    e.clientX,
+    e.clientY,
     e.clientX - rect.left,
     e.clientY - rect.top,
     project,
@@ -29,37 +33,54 @@ export function hitTestCanvas(
 ): HitTarget {
   const el = document.elementFromPoint(clientX, clientY) as HTMLElement | null;
 
-  // 1. Beats — DOM-based, they render above everything
   if (el) {
-    const beatEl = el.closest<HTMLElement>('[data-beat-id]');
-    if (beatEl) {
-      const beatId = beatEl.dataset.beatId!;
-      const laneEl = beatEl.closest<HTMLElement>('[data-lane-id]');
+    const resizeEl = el.closest<HTMLElement>("[data-resize-handle]");
+    if (resizeEl) {
+      const beatId = resizeEl.dataset.beatResizeId!;
+      const laneEl = resizeEl.closest<HTMLElement>("[data-lane-id]");
       const beat = findBeatInProject(project, beatId);
       if (laneEl && beat) {
-        return { kind: 'beat', laneId: laneEl.dataset.laneId!, beat };
+        return {
+          kind: "beat-resize",
+          laneId: laneEl.dataset.laneId!,
+          beat,
+          edge: resizeEl.dataset.resizeHandle as "left" | "right",
+        };
+      }
+    }
+  }
+
+  // 1. Beats — DOM-based, they render above everything
+  if (el) {
+    const beatEl = el.closest<HTMLElement>("[data-beat-id]");
+    if (beatEl) {
+      const beatId = beatEl.dataset.beatId!;
+      const laneEl = beatEl.closest<HTMLElement>("[data-lane-id]");
+      const beat = findBeatInProject(project, beatId);
+      if (laneEl && beat) {
+        return { kind: "beat", laneId: laneEl.dataset.laneId!, beat };
       }
     }
   }
 
   // 2. Arrows — manual, because lane divs cover the arrow SVG in DOM order
   const arrowId = hitTestArrows(canvasX, canvasY, project);
-  if (arrowId) return { kind: 'arrow', linkId: arrowId };
+  if (arrowId) return { kind: "arrow", linkId: arrowId };
 
   // 3. Empty lane
   if (el) {
-    const laneEl = el.closest<HTMLElement>('[data-lane-id]');
+    const laneEl = el.closest<HTMLElement>("[data-lane-id]");
     if (laneEl) {
       const rect = laneEl.getBoundingClientRect();
       const time = Math.max(
         0,
         (clientX - rect.left - LANE_PADDING_LEFT) / PIXELS_PER_UNIT,
       );
-      return { kind: 'empty', laneId: laneEl.dataset.laneId!, time };
+      return { kind: "empty", laneId: laneEl.dataset.laneId!, time };
     }
   }
 
-  return { kind: 'canvas' };
+  return { kind: "canvas" };
 }
 
 function findBeatInProject(project: Project, id: string): Beat | undefined {
@@ -70,11 +91,22 @@ function findBeatInProject(project: Project, id: string): Beat | undefined {
   return undefined;
 }
 
-function hitTestArrows(cx: number, cy: number, project: Project): string | null {
-  const beatPos = new Map<string, { time: number; laneIndex: number }>();
+function hitTestArrows(
+  cx: number,
+  cy: number,
+  project: Project,
+): string | null {
+  const beatPos = new Map<
+    string,
+    { time: number; laneIndex: number; duration: number }
+  >();
   project.lanes.forEach((lane, laneIndex) => {
     for (const beat of lane.beats) {
-      beatPos.set(beat.id, { time: beat.time, laneIndex });
+      beatPos.set(beat.id, {
+        time: beat.time,
+        laneIndex,
+        duration: beat.duration,
+      });
     }
   });
 
@@ -83,7 +115,8 @@ function hitTestArrows(cx: number, cy: number, project: Project): string | null 
     const to = beatPos.get(link.to);
     if (!from || !to) continue;
 
-    const x1 = LANE_PADDING_LEFT + from.time * PIXELS_PER_UNIT + BEAT_WIDTH;
+    const x1 =
+      LANE_PADDING_LEFT + (from.time + (from.duration ?? 1)) * PIXELS_PER_UNIT;
     const x2 = LANE_PADDING_LEFT + to.time * PIXELS_PER_UNIT;
     const y1 = RULER_HEIGHT + from.laneIndex * LANE_HEIGHT + LANE_HEIGHT / 2;
     const y2 = RULER_HEIGHT + to.laneIndex * LANE_HEIGHT + LANE_HEIGHT / 2;
@@ -101,9 +134,12 @@ function hitTestArrows(cx: number, cy: number, project: Project): string | null 
 }
 
 function distToSegment(
-  px: number, py: number,
-  x1: number, y1: number,
-  x2: number, y2: number,
+  px: number,
+  py: number,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
 ): number {
   const dx = x2 - x1;
   const dy = y2 - y1;

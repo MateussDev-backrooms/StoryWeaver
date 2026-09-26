@@ -1,0 +1,181 @@
+.beat-error {
+  outline: 2px solid #c02020;
+  outline-offset: -1px;
+  animation: beat-error-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes beat-error-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(192, 32, 32, 0.55); }
+  50%      { box-shadow: 0 0 0 6px rgba(192, 32, 32, 0); }
+}
+
+.error-panel {
+  max-width: 70ch;
+  padding: 0.5rem 0.75rem;
+}
+
+.error-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border-top: 1px solid rgba(255,255,255,0.4);
+  border-left: 1px solid rgba(255,255,255,0.4);
+  border-right: 1px solid rgba(0,0,0,0.4);
+  border-bottom: 1px solid rgba(0,0,0,0.4);
+}
+
+.error-dot-error { background: #c02020; }
+.error-dot-warn  { background: #c08a20; }
+
+
+.beat-pivot {
+  position: absolute;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  transform: translateY(-50%);
+  background: var(--base-dark);
+  border-bottom: 2px solid var(--base-highlight);
+	border-right: 2px solid var(--base-highlight);
+  border-left: 2px solid var(--base-shadow);
+  border-top: 2px solid var(--base-shadow);
+  opacity: 0;
+  transition: opacity 0.15s ease-out;
+  pointer-events: none;
+  z-index: 5;
+}
+.beat-pivot-left  { left: -6px; }
+.beat-pivot-right { right: -6px; }
+.beat-card:hover .beat-pivot { opacity: 1; }
+
+.beat-ghost {
+  opacity: 0.2;
+  pointer-events: none;
+  border-style: dashed;
+}
+
+.beat-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+  border-style: dashed;
+  opacity: 0.4;
+  z-index: 100;
+  transition: opacity 0.15s ease-out;
+}
+.beat-add:hover { opacity: 0.6; }
+
+.lane-placing,
+.lane-placing * {
+  cursor: crosshair !important;
+}
+
+.btn-tab-selected {
+  background: var(--gradient-vivid);
+  border-top: 2px solid var(--base-shadow);
+  border-left: 2px solid var(--base-shadow);
+  border-right: 2px solid var(--base-highlight);
+  border-bottom: 2px solid var(--base-highlight);
+}
+
+.beat-selected {
+  outline: 3px solid #FF00FF;
+  outline-offset: 0px;
+  z-index: 50;
+}
+
+.beat-selected.beat-error {
+  outline-color: #c02020;
+}
+
+.beat-resize {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  cursor: ew-resize;
+  z-index: 10;
+}
+.beat-resize-left  { left: -4px; }
+.beat-resize-right { right: -4px; }
+.beat-resize:hover {
+  background: rgba(0, 102, 255, 0.25);
+}
+
+/* ── Hover intent styles (see ToolHost data-intent) ──────── */
+
+[data-intent="delete"] .beat-card:hover {
+  opacity: 0.55;
+  outline: 2px solid #c02020;
+  outline-offset: -1px;
+}
+[data-intent="delete"] .beat-card:hover * {
+  color: #c02020 !important;
+  text-decoration: line-through;
+}
+[data-intent="delete"] .beat-card:hover .beat-pivot { opacity: 0 !important; }
+
+[data-intent="link"] .beat-card:hover {
+  outline: 2px dashed #0066ff;
+  outline-offset: -2px;
+}
+
+[data-intent="select"] .beat-card:hover,
+[data-intent="draw"] .beat-card:hover {
+  text-decoration: dashed;
+}
+
+[data-intent="delete"] .beat-card {
+  cursor: inherit;
+}
+
+[data-intent="link"] .beat-card:hover:not(.beat-link-source) {
+  outline: 2px dashed #0066ff;
+  outline-offset: -2px;
+  background-color: rgba(0, 102, 255, 0.08);
+}
+
+.beat-link-source {
+  outline: 2px dashed #0066ff;
+  outline-offset: -2px;
+}
+
+.beat-link-target {
+  outline: 2px solid #0066ff;
+  outline-offset: -2px;
+  background-color: rgba(0, 102, 255, 0.15);
+  box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.25);
+  z-index: 60;
+}
+
+[data-intent="link"] .beat-card:hover:not(.beat-link-source):not(.beat-link-target) {
+  outline: 2px dashed #0066ff;
+  outline-offset: -2px;
+}
+
+.beat-title-input {
+  width: 100%;
+  height: 100%;
+  padding: 0.25rem 0.4rem;
+  font-size: 0.85rem;
+  border: none;
+  outline: 2px solid #0066ff;
+  outline-offset: -1px;
+}
+
+.beat-intro {
+  box-shadow: inset 0 3px 0 #1cb724;
+  background-color: #81dd65;
+}
+.beat-outro {
+  box-shadow: inset 0 -3px 0 #b71c1c;
+  background-color: #e48080;
+}
+.beat-intro.beat-error,
+.beat-outro.beat-error {
+  box-shadow: inherit;   /* error outline wins */
+}

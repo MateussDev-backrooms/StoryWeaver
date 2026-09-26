@@ -2,8 +2,9 @@
 import { useToolStore } from '../../store/useToolStore';
 import {
   LANE_HEIGHT, LANE_PADDING_LEFT, PIXELS_PER_UNIT,
-  BEAT_HEIGHT, BEAT_WIDTH,
+  BEAT_HEIGHT,
   RULER_HEIGHT,
+  BEAT_DEFAULT_DURATION,
 } from '../../constants';
 import { useStore } from '../../store/store';
 
@@ -30,7 +31,7 @@ export function ToolPreview() {
         style={{
           left: LANE_PADDING_LEFT + preview.time * PIXELS_PER_UNIT,
           top: (laneIndex) * LANE_HEIGHT + LANE_HEIGHT/2 + (LANE_HEIGHT - BEAT_HEIGHT)/2,
-          width: BEAT_WIDTH, height: BEAT_HEIGHT,
+          width: BEAT_DEFAULT_DURATION, height: BEAT_HEIGHT,
         }}
       />
     );
@@ -63,7 +64,7 @@ export function ToolPreview() {
     if (!beat || laneIndex < 0) return null;
 
     // Anchor at the center of the beat
-    const x1 = LANE_PADDING_LEFT + beat.time * PIXELS_PER_UNIT + BEAT_WIDTH/2;
+    const x1 = LANE_PADDING_LEFT + beat.time * PIXELS_PER_UNIT + (beat.duration/2 * PIXELS_PER_UNIT);
     const y1 = RULER_HEIGHT + laneIndex * LANE_HEIGHT + LANE_HEIGHT / 2;
     const x2 = preview.toX;
     const y2 = preview.toY;

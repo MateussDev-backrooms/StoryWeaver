@@ -1,6 +1,6 @@
 import {
-  BEAT_WIDTH,
   BEAT_HEIGHT,
+  DEATH_END_BEAT_NAMES,
   LANE_HEIGHT,
   LANE_PADDING_LEFT,
   PIXELS_PER_UNIT,
@@ -22,7 +22,11 @@ export function Lane({ lane, beatIssueIds }: Props) {
   const firstId = sorted.length > 1 ? sorted[0].id : undefined;
   const lastId = sorted.length > 1 ? sorted[sorted.length - 1].id : undefined;
   const lastBeat = sorted[sorted.length - 1];
-  const plusTime = lastBeat ? lastBeat.time + 1 : 0;
+  const plusTime = lastBeat ? lastBeat.time + lastBeat.duration : 0;
+
+  const isDeath = (t:string):boolean => {
+    return DEATH_END_BEAT_NAMES.findIndex((v, i) => v == t.trim().toLowerCase()) != -1
+  }
 
   return (
     <div
@@ -39,7 +43,7 @@ export function Lane({ lane, beatIssueIds }: Props) {
           role={
             beat.id === firstId
               ? "intro"
-              : beat.id === lastId
+              : beat.id === lastId && isDeath(beat.title)
                 ? "outro"
                 : undefined
           }

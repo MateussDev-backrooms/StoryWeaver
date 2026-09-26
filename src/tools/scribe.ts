@@ -5,7 +5,7 @@ import { TbNeedleThread } from 'react-icons/tb';
 import { weaver } from './weaver';
 import { boxSelect } from './boxSelect';
 import { quill } from './quill';
-import { dragBeatGesture } from './common';
+import { dragBeatGesture, resizeBeatGesture } from './common';
 
 const snap = (t: number) => Math.round(t * 4) / 4;
 
@@ -49,6 +49,11 @@ export const scribe: Tool = {
       }
       return dragBeatGesture(ctx);
     }
+
+    if (hit.kind === "beat-resize") {
+      return resizeBeatGesture(ctx);
+    }
+
     if (hit.kind === 'arrow') {
       if (modifiers.ctrl) return deleteTool.onPointerDown(ctx);
       if (modifiers.shift) return boxSelect.onPointerDown(ctx);

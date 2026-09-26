@@ -7,6 +7,7 @@ export type ToolIntent = 'neutral' | 'draw' | 'select' | 'delete' | 'link';
 export type HitTarget =
   | { kind: 'empty'; laneId: string; time: number }
   | { kind: 'beat'; laneId: string; beat: Beat }
+  | { kind: "beat-resize"; laneId: string; beat: Beat; edge: "left" | "right" }
   | { kind: 'arrow'; linkId: string }
   | { kind: 'canvas' }
 
@@ -59,6 +60,7 @@ export interface ToolContext {
 
     findBeat: (id: string) => Beat | undefined;
     findLaneOfBeat: (id: string) => string | undefined;
+    resizeBeat: (laneId: string, beatId: string, patch: { time?: number; duration?: number }) => void;
   };
 
   setPreview: (p: Preview | null) => void;

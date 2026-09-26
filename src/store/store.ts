@@ -1,52 +1,69 @@
 // store.ts
 import { create } from "zustand";
-import type { Beat, Lane, Project } from "../types/types";
+import type { Beat, Lane, Marker, Project, Section } from "../types/types";
 import { temporal } from "zundo";
 import { throttle } from "../lib/throttle";
-import { loadFromLocalStorage } from "../lib/persistence";
+import { emptyProject, hydrateProject } from "../lib/persistence";
+import { bootProject, deleteProject } from "../lib/storage";
+import { BEAT_DEFAULT_DURATION } from "../constants";
+import { getSectionRange } from "../lib/sections";
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
-const seed: Project = {
-  title: "Untitled",
-  lanes: [],
-  links: [],
-};
-
-const bootProject = loadFromLocalStorage() ?? seed;
+const bootedProject = bootProject();
 
 interface Store {
   project: Project;
-  moveBeat: (laneId: string, beatId: string, time: number) => void;
+
   addLane: (draft: { name: string; color: string; group: string }) => void;
   removeLane: (laneId: string) => void;
   updateLane: (
     laneId: string,
     patch: Partial<Pick<Lane, "name" | "color" | "group">>,
   ) => void;
+  reorderLane: (laneId: string, beforeLaneId: string | null) => void;
+
   addBeat: (laneId: string, time: number) => string;
   appendBeat: (laneId: string, time: number, connectFrom?: string) => string;
+  moveBeat: (laneId: string, beatId: string, time: number) => void;
   moveBeats: (
     updates: { laneId: string; beatId: string; time: number }[],
   ) => void;
   deleteBeat: (laneId: string, beatId: string) => void;
-  addLink: (from: string, to: string) => void;
-  deleteLink: (linkId: string) => void;
   updateBeatTitle: (beatId: string, title: string) => void;
   updateBeat: (
     beatId: string,
     patch: Partial<Pick<Beat, "title" | "content">>,
   ) => void;
-  reorderLane: (laneId: string, beforeLaneId: string | null) => void;
+  resizeBeat: (
+    laneId: string,
+    beatId: string,
+    patch: { time?: number; duration?: number },
+  ) => void;
+
+  addLink: (from: string, to: string) => void;
+  deleteLink: (linkId: string) => void;
 
   loadProject: (project: Project) => void;
-  newProject: () => void;
+
+  createProject: (meta: { name: string; color: string; icon: string }) => void;
+  deleteProject: (id: string) => void;
+
+  addMarker: (draft: Omit<Marker, "id">) => string;
+  updateMarker: (id: string, patch: Partial<Marker>) => void;
+  deleteMarker: (id: string) => void;
+
+  addSection: (
+    draft: Omit<Section, "id">,
+  ) => { ok: true; id: string } | { ok: false; reason: string };
+  updateSection: (id: string, patch: Partial<Section>) => void;
+  deleteSection: (id: string) => void;
 }
 
 export const useStore = create<Store>()(
   temporal(
-    (set) => ({
-      project: bootProject,
+    (set, get) => ({
+      project: bootedProject,
 
       moveBeat: (laneId, beatId, time) =>
         set((s) => ({
@@ -111,7 +128,13 @@ export const useStore = create<Store>()(
                     ...l,
                     beats: [
                       ...l.beats,
-                      { id, title: "New beat", content: "", time },
+                      {
+                        id,
+                        title: "New beat",
+                        content: "",
+                        time,
+                        duration: BEAT_DEFAULT_DURATION,
+                      },
                     ],
                   },
             ),
@@ -195,7 +218,13 @@ export const useStore = create<Store>()(
                       ...l,
                       beats: [
                         ...l.beats,
-                        { id, title: "New beat", content: "", time },
+                        {
+                          id,
+                          title: "New beat",
+                          content: "",
+                          time,
+                          duration: BEAT_DEFAULT_DURATION,
+                        },
                       ],
                     },
               ),
@@ -257,21 +286,129 @@ export const useStore = create<Store>()(
         }),
 
       loadProject: (project: Project) => {
-        set({ project });
-        // Don't let the user undo *into* the old project.
+        const hydrated = hydrateProject(project);
+        set({ project: hydrated });
         useStore.temporal.getState().clear();
       },
 
-      newProject: () => {
-        set({
-          project: {
-            title: "Untitled",
-            lanes: [],
-            links: [],
-          },
+      createProject: (meta) => {
+        const project = emptyProject({
+          name: meta.name,
+          color: meta.color,
+          icon: meta.icon,
         });
+        set({ project });
         useStore.temporal.getState().clear();
       },
+
+      deleteProject: (id) => {
+        const wasActive = useStore.getState().project.id === id;
+        deleteProject(id);
+        if (wasActive) {
+          const next = bootProject();
+          set({ project: next });
+          useStore.temporal.getState().clear();
+        }
+      },
+
+      addMarker: (draft) => {
+        const id = uid();
+        set((s) => ({
+          project: {
+            ...s.project,
+            markers: [...s.project.markers, { id, ...draft }],
+          },
+        }));
+        return id;
+      },
+
+      updateMarker: (id, patch) =>
+        set((s) => ({
+          project: {
+            ...s.project,
+            markers: s.project.markers.map((m) =>
+              m.id === id ? { ...m, ...patch } : m,
+            ),
+          },
+        })),
+
+      deleteMarker: (id) =>
+        set((s) => ({
+          project: {
+            ...s.project,
+            markers: s.project.markers.filter((m) => m.id !== id),
+            sections: s.project.sections.filter(
+              (sec) => sec.startMarkerId !== id && sec.endMarkerId !== id,
+            ),
+          },
+        })),
+
+      addSection: (draft) => {
+        const s = get();
+        if (draft.startMarkerId === draft.endMarkerId) {
+          return { ok: false, reason: "Start and end must differ" };
+        }
+
+        const newRange = getSectionRange(draft, s.project);
+        if (!newRange) {
+          return {
+            ok: false,
+            reason: "One of the boundaries could not be resolved",
+          };
+        }
+
+        for (const existing of s.project.sections) {
+          const er = getSectionRange(existing, s.project);
+          if (!er) continue;
+          if (newRange.start < er.end && newRange.end > er.start) {
+            return { ok: false, reason: `Overlaps with "${existing.name}"` };
+          }
+        }
+
+        const id = uid();
+        set((st) => ({
+          project: {
+            ...st.project,
+            sections: [...st.project.sections, { id, ...draft }],
+          },
+        }));
+        return { ok: true, id };
+      },
+
+      updateSection: (id, patch) =>
+        set((s) => ({
+          project: {
+            ...s.project,
+            sections: s.project.sections.map((sec) =>
+              sec.id === id ? { ...sec, ...patch } : sec,
+            ),
+          },
+        })),
+
+      deleteSection: (id) =>
+        set((s) => ({
+          project: {
+            ...s.project,
+            sections: s.project.sections.filter((sec) => sec.id !== id),
+          },
+        })),
+
+      resizeBeat: (laneId, beatId, patch) =>
+        set((s) => ({
+          project: {
+            ...s.project,
+            lanes: s.project.lanes.map((l) =>
+              l.id !== laneId
+                ? l
+                : {
+                    ...l,
+                    beats: l.beats.map((b) =>
+                      b.id === beatId ? { ...b, ...patch } : b,
+                    ),
+                  },
+            ),
+          },
+        })),
     }),
     {
       partialize: (state) => ({ project: state.project }),

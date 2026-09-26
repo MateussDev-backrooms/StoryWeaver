@@ -5,12 +5,9 @@ import { ErrorPanel } from "./components/error/ErrorPanel";
 import {
   RiArrowGoBackFill,
   RiArrowGoForwardFill,
-  RiDeleteBack2Fill,
+  RiArrowLeftRightLine,
   RiPencilLine,
-  RiPenNibFill,
   RiPieChart2Line,
-  RiQuillPenFill,
-  RiShape2Line,
   RiTimelineView,
 } from "react-icons/ri";
 import { Toolbar } from "./components/timeline/ToolBar";
@@ -21,10 +18,20 @@ import { useStore as useZustandStore } from "zustand";
 import { useStore } from "./store/store";
 import { useEffect, useRef } from "react";
 import { useModalStore } from "./store/useModalStore";
-import { downloadProject, parseProjectFile, saveToLocalStorage, STORAGE_KEY } from "./lib/persistence";
+import {
+  downloadProject,
+  parseProjectFile,
+  saveToLocalStorage,
+  STORAGE_KEY,
+} from "./lib/persistence";
 import { throttle } from "./lib/throttle";
 import type { Project } from "./types/types";
 import { FileMenu } from "./components/common/FileMenu";
+import { saveProject } from "./lib/storage";
+import { useToastStore } from "./store/useToastStore";
+import { ToastHost } from "./components/common/ToastHost";
+import { useToolStore } from "./store/useToolStore";
+import { SectionBar } from "./components/timeline/menu/SectionBar";
 
 function App() {
   const { issues } = useValidation();
@@ -39,6 +46,9 @@ function App() {
   );
   const undo = useZustandStore(useStore.temporal, (s) => s.undo);
   const redo = useZustandStore(useStore.temporal, (s) => s.redo);
+
+  const rippleEdit = useToolStore((s) => s.rippleEdit);
+  const setRippleEdit = useToolStore((s) => s.setRippleEdit);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -64,7 +74,22 @@ function App() {
   //Saving thingamajigs
   // ── 1. Autosave to localStorage ────────────────────────────
   useEffect(() => {
-    const save = throttle((p: Project) => saveToLocalStorage(p), 800);
+    const save = throttle((p: Project) => {
+      try {
+        saveProject(p);
+        useToastStore.getState().push({
+            type: "success",
+            message: "Autosaved to LocalStorage",
+          });
+      } catch (e) {
+        // surface quota errors via toast
+        useToastStore.getState().push({
+          type: "error",
+          message: e instanceof Error ? e.message : "Save failed",
+        });
+      }
+    }, 800);
+
     const unsub = useStore.subscribe((state, prev) => {
       if (state.project !== prev.project) save(state.project);
     });
@@ -76,6 +101,19 @@ function App() {
     const onKey = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
         e.preventDefault();
+        try {
+          saveProject(useStore.getState().project);
+          useToastStore.getState().push({
+            type: "success",
+            message: "Saved to LocalStorage",
+          });
+        } catch (e) {
+          // surface quota errors via toast
+          useToastStore.getState().push({
+            type: "error",
+            message: e instanceof Error ? e.message : "Save failed",
+          });
+        }
         downloadProject(useStore.getState().project);
       }
     };
@@ -110,20 +148,17 @@ function App() {
     };
   }, []);
 
-  // ── 4. Welcome on first launch ─────────────────────────────
-  const checkedWelcome = useRef(false);
+  const openedWelcome = useRef(false);
   useEffect(() => {
-    if (checkedWelcome.current) return;
-    checkedWelcome.current = true;
-    if (localStorage.getItem(STORAGE_KEY) === null) {
-      useModalStore.getState().open("welcome", {});
-    }
+    if (openedWelcome.current) return;
+    openedWelcome.current = true;
+    useModalStore.getState().open("welcome", {});
   }, []);
 
   return (
     <>
       <nav className="panel m-1 flex flex-row h-fit p-2 bg-amber-300">
-        <h1 className="heading p-0 my-auto">Story weaver</h1>
+        <h1 className="heading-nav p-0 my-auto">Story weaver</h1>
 
         <div className="mx-auto">
           <div className="flex flex-row">
@@ -142,9 +177,10 @@ function App() {
           </div>
         </div>
 
-        <FileMenu/>
+        <FileMenu />
       </nav>
 
+      <ToastHost />
       <ModalHost />
 
       <div className="panel panel-sm flex flex-row m-1">
@@ -173,6 +209,20 @@ function App() {
         {/* Toolbar */}
         <div className="shading-inverted bg-slate-500 p-[0.2rem] flex flex-row text-xl">
           <Toolbar></Toolbar>
+        </div>
+
+        <div className="shading-inverted bg-slate-500 p-[0.2rem] flex flex-row text-xl">
+          <button
+            className={`btn btn-sm ${rippleEdit ? "btn-tab-selected" : ""}`}
+            title="Ripple edit — moves also shift subsequent beats"
+            onClick={() => setRippleEdit(!rippleEdit)}
+          >
+            <RiArrowLeftRightLine />
+          </button>
+        </div>
+
+        <div className="shading-inverted bg-slate-400 p-[0.2rem] flex flex-row text-xl max-w-[75%]">
+          <SectionBar />
         </div>
 
         <div className="ml-auto">

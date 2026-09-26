@@ -30,6 +30,12 @@ interface ToolState {
   showLane: (id: string) => void;
   toggleLaneVisibility: (id: string) => void;
   showAllLanes: () => void;
+
+  rippleEdit: boolean;
+  setRippleEdit: (v: boolean) => void;
+
+  scrollTargetTime: number | null;
+  requestScrollTo: (t: number | null) => void;
 }
 
 export const useToolStore = create<ToolState>((set, get) => ({
@@ -103,4 +109,9 @@ export const useToolStore = create<ToolState>((set, get) => ({
       return { hiddenLaneIds: n };
     }),
   showAllLanes: () => set({ hiddenLaneIds: new Set() }),
+  rippleEdit: false,
+  setRippleEdit: (v) => set({ rippleEdit: v }),
+
+  scrollTargetTime: null,
+  requestScrollTo: (t) => set({ scrollTargetTime: t }),
 }));

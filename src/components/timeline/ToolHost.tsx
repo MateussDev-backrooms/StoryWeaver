@@ -219,6 +219,7 @@ export function ToolHost({ children }: Props) {
         deleteBeat: p.deleteBeat,
         addLink: p.addLink,
         deleteLink: p.deleteLink,
+        resizeBeat: p.resizeBeat,
         findBeat: (id) => {
           for (const lane of p.project.lanes) {
             const b = lane.beats.find((x) => x.id === id);
