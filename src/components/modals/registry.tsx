@@ -3,9 +3,11 @@ import type { ModalType } from '../../store/useModalStore';
 import { ConfirmModal } from './ConfirmModal';
 import { CreateCharacterModal } from './CreateCharacterModal';
 import { EditBeatModal } from './EditBeatModal';
+import { WelcomeModal } from './WelcomeModal';
 
 export const MODAL_REGISTRY: Record<ModalType, React.ComponentType<any>> = {
   'create-character': CreateCharacterModal,
   'edit-beat': EditBeatModal,
   'confirm': ConfirmModal,
+  'welcome': WelcomeModal
 };

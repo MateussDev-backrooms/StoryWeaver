@@ -34,10 +34,14 @@ export interface ConfirmProps {
   onCancel?: () => void;
 }
 
+//Welcome (Blank)
+export interface WelcomeProps {}
+
 export interface ModalPropsMap {
   'create-character': CreateCharacterProps;
   'edit-beat': EditBeatProps;
   'confirm': ConfirmProps;
+  'welcome': WelcomeProps;
 }
 
 export type ModalType = keyof ModalPropsMap;

@@ -63,7 +63,7 @@ export function CreateCharacterModal({
       title: "Delete character",
       message:
         `Delete "${laneEdit.name}"? This removes the lane and all ${laneEdit.beats.length} ` +
-        `of its beats. This cannot be undone.`,
+        `of its beats.`,
       confirmLabel: "Delete",
       onConfirm: () => {
         useStore.getState().removeLane(laneEdit.id);

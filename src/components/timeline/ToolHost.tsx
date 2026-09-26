@@ -12,6 +12,7 @@ import { PIXELS_PER_UNIT, LANE_PADDING_LEFT } from "../../constants";
 import { hitTest } from "../../tools/hitTest";
 import { TOOLS, TOOL_ORDER } from "../../tools/registry";
 import { useModalStore } from "../../store/useModalStore";
+import type { Project } from "../../types/types";
 
 interface Props {
   children: React.ReactNode;
@@ -34,6 +35,8 @@ export function ToolHost({ children }: Props) {
   const [mods, setMods] = useState<Modifiers>(NO_MODS);
   const [gestureActive, setGestureActive] = useState(false);
   const [pointer, setPointer] = useState<{ x: number; y: number } | null>(null);
+
+  const preDragProjectRef = useRef<Project | null>(null);
 
   // ── keyboard ──────────────────────────────────────────────
   useEffect(() => {
@@ -236,6 +239,10 @@ export function ToolHost({ children }: Props) {
     // Skip if the user is typing in a beat title input.
     const target = e.target as HTMLElement;
     if (target.closest("input, textarea, [contenteditable]")) return;
+
+    preDragProjectRef.current = useStore.getState().project;
+    useStore.temporal.getState().pause();
+
     const hit = hitTest(e, rootRef.current!, useStore.getState().project);
     startModsRef.current = {
       shift: e.shiftKey,
@@ -278,6 +285,21 @@ export function ToolHost({ children }: Props) {
     startModsRef.current = null;
     setGestureActive(false);
     useToolStore.getState().setFrozenCanvasWidth(null);
+
+    const preDrag = preDragProjectRef.current;
+    preDragProjectRef.current = null;
+    if (!preDrag) return;
+
+    const postDrag = useStore.getState().project;
+
+    if (preDrag === postDrag) {
+      useStore.temporal.getState().resume();
+      return;
+    }
+
+    useStore.setState({ project: preDrag });
+    useStore.temporal.getState().resume();
+    useStore.setState({ project: postDrag });
   };
 
   const onDoubleClick = (e: React.MouseEvent) => {

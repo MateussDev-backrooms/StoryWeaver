@@ -3,6 +3,10 @@
 
 
 :root {
+  /* Typography */
+  --base-font: "JetBrains Mono";
+  --heading-font: "Limelight";
+
 	--base-color: rgb(209, 209, 209);
 	--base-color-hover: rgb(230, 230, 230);
   --base-highlight: rgba(255, 255, 255, 0.5);
@@ -20,16 +24,36 @@
 body {
 	color: #3d3d3dff;
 	font-weight: 500;
-	font-family: "JetBrains Mono", monospace;
+	font-family: var(--base-font), monospace;
 }
 
-.heading {
-  font-family: "Limelight";
+/* Headings and typography */
+
+.heading-3 {
+  font-family: var(--heading-font);
+  font-size: xx-large;
+  font-weight: bolder;
+}
+
+.heading-nav {
+  font-family: var(--heading-font);
   font-size: 2rem;
   font-weight: bolder;
 }
 
-/* Elements */
+.heading-giant {
+  font-family: var(--heading-font);
+  font-size: 5rem;
+  font-weight: bolder;
+}
+
+.subheading {
+  font-size: 0.8rem;
+  opacity: 0.7;
+  margin: 0.2rem 0 0;
+}
+
+/* Generic */
 
 .frame {
   padding: 0.75rem;
@@ -73,6 +97,8 @@ body {
   border-top: 2px solid var(--base-shadow);
 }
 
+/* Interactive elements */
+
 .btn {
   margin: 0.2rem;
   padding: 0.75rem;
@@ -100,14 +126,18 @@ body {
   padding: 0.1rem
 }
 
+/* Utilities */
+.noscroll {
+  scrollbar-width: none;
+}
+
+/* Project Unique!!! */
+
 .timeline {
   user-select: none;
   scrollbar-width: thin;
 }
 
-.noscroll {
-  scrollbar-width: none;
-}
 
 .beat-error {
   outline: 2px solid #c02020;
@@ -185,8 +215,6 @@ body {
   cursor: crosshair !important;
 }
 
-/* ── Toolbar active tool ─────────────────────────────────── */
-
 .btn-tab-selected {
   background: var(--gradient-vivid);
   border-top: 2px solid var(--base-shadow);
@@ -194,8 +222,6 @@ body {
   border-right: 2px solid var(--base-highlight);
   border-bottom: 2px solid var(--base-highlight);
 }
-
-/* ── Selected beat ───────────────────────────────────────── */
 
 .beat-selected {
   outline: 3px solid #FF00FF;
@@ -234,21 +260,17 @@ body {
   cursor: inherit;
 }
 
-/* Target highlight during a link gesture */
 [data-intent="link"] .beat-card:hover:not(.beat-link-source) {
   outline: 2px dashed #0066ff;
   outline-offset: -2px;
   background-color: rgba(0, 102, 255, 0.08);
 }
 
-/* Source — the beat the thread is coming from */
 .beat-link-source {
   outline: 2px dashed #0066ff;
   outline-offset: -2px;
 }
 
-/* Target — the beat currently under the cursor during a link drag.
-   This is the class that was previously missing. */
 .beat-link-target {
   outline: 2px solid #0066ff;
   outline-offset: -2px;
@@ -257,7 +279,6 @@ body {
   z-index: 60;
 }
 
-/* Keep the pre-drag Alt-hover as a softer signal */
 [data-intent="link"] .beat-card:hover:not(.beat-link-source):not(.beat-link-target) {
   outline: 2px dashed #0066ff;
   outline-offset: -2px;
@@ -303,7 +324,7 @@ body {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -322,7 +343,7 @@ body {
   align-items: center;
   justify-content: space-between;
   background: var(--gradient-vivid);
-  margin: -0.5rem -0.5rem 0.5rem -0.5rem;
+  margin: 0 0 0.5rem 0;
   padding: 0.5rem;
 }
 
@@ -431,7 +452,7 @@ body {
   cursor: grabbing;
 }
 
-/* TODO: Replace this */
+/* TODO: Replace this - Create more generic reusable elements like in bootstrap */
 .character-menu {
   position: absolute;
   top: calc(100% + 6px);
@@ -439,15 +460,6 @@ body {
   min-width: 280px;
   padding: 0.4rem;
   z-index: 8000;
-}
-
-.character-menu-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.2rem 0.3rem 0.4rem;
-  font-size: 0.75rem;
-  opacity: 0.7;
 }
 
 .character-menu-list {
@@ -508,4 +520,64 @@ body {
   font-size: 0.75rem;
   opacity: 0.5;
   text-align: center;
+}
+
+/* ── Welcome modal ───────────────────────────────────────── */
+
+.welcome-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+.welcome-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+.welcome-dropzone {
+  border: 2px dashed var(--base-shadow);
+  padding: 2rem 1rem;
+  font-size: 0.85rem;
+  color: #5a5a5a;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.welcome-dropzone-active {
+  border-color: #0066ff;
+  background: rgba(0, 102, 255, 0.08);
+  color: #0066ff;
+}
+.welcome-dropzone code {
+  font-family: inherit;
+  background: rgba(0, 0, 0, 0.06);
+  padding: 0 0.25rem;
+}
+.welcome-error {
+  color: #c02020;
+  font-size: 0.8rem;
+  padding: 0.5rem;
+  background: rgba(192, 32, 32, 0.08);
+  border-left: 3px solid #c02020;
+  text-align: left;
+}
+
+/* ── File menu ───────────────────────────────────────────── */
+
+.file-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 220px;
+  padding: 0.3rem;
+  z-index: 8000;
+  display: flex;
+  flex-direction: column;
+}
+.file-menu button {
+  text-align: left;
+  justify-content: flex-start;
+  margin: 0.1rem 0;
 }
