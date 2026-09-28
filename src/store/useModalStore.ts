@@ -1,37 +1,36 @@
-import { create } from 'zustand';
-import type { Lane } from '../types/types';
+import { create } from "zustand";
+import type { Lane } from "../types/types";
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
 // ===== Modal data ===== //
 
-
-// Character modal
+//Character modal
 export interface CharacterDraft {
-    name: string;
-    color: string;
-    group: string;
+	name: string;
+	color: string;
+	group: string;
 }
 
 export interface CreateCharacterProps {
-    laneEdit?: Lane;
-    onConfirm: (draft: CharacterDraft) => void;
-    onCancel?: () => void;
+	laneEdit?: Lane;
+	onConfirm: (draft: CharacterDraft) => void;
+	onCancel?: () => void;
 }
 
-// Edit beat
+//Edit beat
 export interface EditBeatProps {
-    laneId: string;
-    beatId: string;
+	laneId: string;
+	beatId: string;
 }
 
-// Generic confirm
+//Generic confirm
 export interface ConfirmProps {
-  title: string;
-  message: string;
-  confirmLabel?: string;
-  onConfirm: () => void;
-  onCancel?: () => void;
+	title: string;
+	message: string;
+	confirmLabel?: string;
+	onConfirm: () => void;
+	onCancel?: () => void;
 }
 
 //Welcome (Blank)
@@ -39,64 +38,63 @@ export interface WelcomeProps {}
 
 //New Project Modal
 export interface NewProjectProps {
-  onConfirm: (meta: { name: string; color: string; icon: string }) => void;
-  onCancel?: () => void;
+	onConfirm: (meta: { name: string; color: string; icon: string }) => void;
+	onCancel?: () => void;
 }
 
 //Edit Marker
 export interface EditMarkerProps {
-  markerId?: string;
-  initialTime?: number;
+	markerId?: string;
+	initialTime?: number;
 }
 
 //Edit Section
 export interface EditSectionProps {
-  sectionId?: string;
+	sectionId?: string;
 }
 
 export interface ModalPropsMap {
-  'create-character': CreateCharacterProps;
-  'edit-beat': EditBeatProps;
-  'confirm': ConfirmProps;
-  'welcome': WelcomeProps;
-  'new-project': NewProjectProps;
-  'edit-marker': EditMarkerProps;
-  'edit-section': EditSectionProps;
+	"create-character": CreateCharacterProps;
+	"edit-beat": EditBeatProps;
+	confirm: ConfirmProps;
+	welcome: WelcomeProps;
+	"new-project": NewProjectProps;
+	"edit-marker": EditMarkerProps;
+	"edit-section": EditSectionProps;
 }
 
 export type ModalType = keyof ModalPropsMap;
 
 interface ModalInstance<K extends ModalType = ModalType> {
-  id: string;
-  type: K;
-  props: ModalPropsMap[K];
+	id: string;
+	type: K;
+	props: ModalPropsMap[K];
 }
 
 interface ModalStore {
-  modals: ModalInstance[];
+	modals: ModalInstance[];
 
-  open: <K extends ModalType>(type: K, props: ModalPropsMap[K]) => string;
-  close: (id: string) => void;
-  closeTop: () => void;
-  closeAll: () => void;
+	open: <K extends ModalType>(type: K, props: ModalPropsMap[K]) => string;
+	close: (id: string) => void;
+	closeTop: () => void;
+	closeAll: () => void;
 }
 
 export const useModalStore = create<ModalStore>((set) => ({
-  modals: [],
+	modals: [],
 
-  open: (type, props) => {
-    const id = uid();
-    set((s) => ({
-      modals: [...s.modals, { id, type, props } as ModalInstance],
-    }));
-    return id;
-  },
+	open: (type, props) => {
+		const id = uid();
+		set((s) => ({
+			modals: [...s.modals, { id, type, props } as ModalInstance],
+		}));
+		return id;
+	},
 
-  close: (id) =>
-    set((s) => ({ modals: s.modals.filter((m) => m.id !== id) })),
+	close: (id) =>
+		set((s) => ({ modals: s.modals.filter((m) => m.id !== id) })),
 
-  closeTop: () =>
-    set((s) => ({ modals: s.modals.slice(0, -1) })),
+	closeTop: () => set((s) => ({ modals: s.modals.slice(0, -1) })),
 
-  closeAll: () => set({ modals: [] }),
+	closeAll: () => set({ modals: [] }),
 }));

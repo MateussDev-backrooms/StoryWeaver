@@ -1,84 +1,90 @@
 .project-card {
-  position: relative;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.6rem 0.75rem;
-  background: var(--base-color);
-  border-top: 2px solid var(--base-highlight);
-  border-left: 2px solid var(--base-highlight);
-  border-right: 2px solid var(--base-shadow);
-  border-bottom: 2px solid var(--base-shadow);
-  cursor: pointer;
-  transition: transform 0.12s ease-out, background 0.12s;
-  width: 260px;
+	position: relative;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.6rem 0.75rem;
+	background: var(--base-color);
+	border-top: 2px solid var(--base-highlight);
+	border-left: 2px solid var(--base-highlight);
+	border-right: 2px solid var(--base-shadow);
+	border-bottom: 2px solid var(--base-shadow);
+	cursor: pointer;
+	transition:
+		transform 0.12s ease-out,
+		background 0.12s;
+	width: 260px;
 }
 .project-card:hover {
-  background: var(--base-color-hover);
-  transform: translateY(-2px);
+	background: var(--base-color-hover);
+	transform: translateY(-2px);
 }
 .project-card-active {
-  outline: 2px solid var(--project-accent, #0066ff);
-  outline-offset: -2px;
+	outline: 2px solid var(--project-accent, #0066ff);
+	outline-offset: -2px;
 }
 
 .project-card-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  flex-shrink: 0;
-  color: #1f1f1f;
-  border-top: 1px solid rgba(255, 255, 255, 0.5);
-  border-left: 1px solid rgba(255, 255, 255, 0.5);
-  border-right: 1px solid rgba(0, 0, 0, 0.3);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	flex-shrink: 0;
+	color: #1f1f1f;
+	border-top: 1px solid rgba(255, 255, 255, 0.5);
+	border-left: 1px solid rgba(255, 255, 255, 0.5);
+	border-right: 1px solid rgba(0, 0, 0, 0.3);
+	border-bottom: 1px solid rgba(0, 0, 0, 0.3);
 }
 
 .project-card-body {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
 }
 
 .project-card-name {
-  font-size: 0.85rem;
-  font-weight: bold;
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+	font-size: 0.85rem;
+	font-weight: bold;
+	margin: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .project-card-stats,
 .project-card-time {
-  font-size: 0.7rem;
-  opacity: 0.65;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 3px;
+	font-size: 0.7rem;
+	opacity: 0.65;
+	margin: 0;
+	display: flex;
+	align-items: center;
+	gap: 3px;
 }
 
 .project-card-delete {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: none;
-  color: rgba(0, 0, 0, 0.35);
-  cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.12s;
+	position: absolute;
+	top: 4px;
+	right: 4px;
+	width: 24px;
+	height: 24px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: transparent;
+	border: none;
+	color: rgba(0, 0, 0, 0.35);
+	cursor: pointer;
+	opacity: 0;
+	transition: opacity 0.12s;
 }
-.project-card:hover .project-card-delete { opacity: 1; }
-.project-card-delete:hover { color: #c02020; }
+.project-card:hover .project-card-delete {
+	opacity: 1;
+}
+.project-card-delete:hover {
+	color: #c02020;
+}

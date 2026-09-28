@@ -15,24 +15,30 @@ export const RULER_HEIGHT = 32;
 export const RULER_SECTION_HEIGHT = 32;
 
 export const PASTEL_COLOR_PRESETS = [
-  "#22d3ee",
-  "#f87171",
-  "#fbbf24",
-  "#34d399",
-  "#a78bfa",
-  "#ec4899",
-  "#94a3b8",
+	"#22d3ee",
+	"#f87171",
+	"#fbbf24",
+	"#34d399",
+	"#a78bfa",
+	"#ec4899",
+	"#94a3b8",
 ];
 export const DARK_COLOR_PRESETS = [
-  "#1a1a1a",
-  "#7c3aed",
-  "#0ea5e9",
-  "#059669",
-  "#dc2626",
-  "#ea580c",
-  "#a16207",
+	"#1a1a1a",
+	"#7c3aed",
+	"#0ea5e9",
+	"#059669",
+	"#dc2626",
+	"#ea580c",
+	"#a16207",
 ];
 
 export const DEATH_END_BEAT_NAMES = [
-    "death", "dead", "dies", "killed", "murdered", "destroyed", "ended"
-]
+	"death",
+	"dead",
+	"dies",
+	"killed",
+	"murdered",
+	"destroyed",
+	"ended",
+];
