@@ -72,17 +72,13 @@ function App() {
   }, []);
 
   //Saving thingamajigs
-  // ── 1. Autosave to localStorage ────────────────────────────
+
+  //Autosave
   useEffect(() => {
     const save = throttle((p: Project) => {
       try {
         saveProject(p);
-        useToastStore.getState().push({
-            type: "success",
-            message: "Autosaved to LocalStorage",
-          });
       } catch (e) {
-        // surface quota errors via toast
         useToastStore.getState().push({
           type: "error",
           message: e instanceof Error ? e.message : "Save failed",
@@ -96,7 +92,7 @@ function App() {
     return unsub;
   }, []);
 
-  // ── 2. Ctrl+S → download ───────────────────────────────────
+  //Ctrl+S
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
@@ -108,7 +104,6 @@ function App() {
             message: "Saved to LocalStorage",
           });
         } catch (e) {
-          // surface quota errors via toast
           useToastStore.getState().push({
             type: "error",
             message: e instanceof Error ? e.message : "Save failed",
@@ -121,7 +116,7 @@ function App() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  // ── 3. Drag-drop anywhere → load project ───────────────────
+  //Global drag-drop of project
   useEffect(() => {
     const onDragOver = (e: DragEvent) => {
       if (e.dataTransfer?.types.includes("Files")) e.preventDefault();
@@ -158,19 +153,19 @@ function App() {
   return (
     <>
       <nav className="panel m-1 flex flex-row h-fit p-2 bg-amber-300">
-        <h1 className="heading-nav p-0 my-auto">Story weaver</h1>
+        <h1 className="heading-nav p-0 my-auto">StoryWeaver</h1>
 
         <div className="mx-auto">
           <div className="flex flex-row">
-            <button className="btn btn-tab-selected flex flex-row items-center">
+            <button className="btn btn-tab-selected flex flex-row items-center" tabIndex={-1}>
               {" "}
               <RiTimelineView className="m-1"></RiTimelineView> Timeline
             </button>
-            <button className="btn flex flex-row items-center">
+            <button className="btn flex flex-row items-center" tabIndex={-1}>
               {" "}
               <RiPencilLine className="m-1"></RiPencilLine> Narrative
             </button>
-            <button className="btn flex flex-row items-center">
+            <button className="btn flex flex-row items-center" tabIndex={-1}>
               {" "}
               <RiPieChart2Line className="m-1"></RiPieChart2Line> Statistics
             </button>
@@ -193,6 +188,7 @@ function App() {
             title="Undo (Ctrl+Z)"
             onClick={() => undo()}
             disabled={!canUndo}
+            tabIndex={-1}
           >
             <RiArrowGoBackFill />
           </button>
@@ -201,6 +197,7 @@ function App() {
             title="Redo (Ctrl+Shift+Z)"
             onClick={() => redo()}
             disabled={!canRedo}
+            tabIndex={-1}
           >
             <RiArrowGoForwardFill />
           </button>
@@ -216,6 +213,7 @@ function App() {
             className={`btn btn-sm ${rippleEdit ? "btn-tab-selected" : ""}`}
             title="Ripple edit — moves also shift subsequent beats"
             onClick={() => setRippleEdit(!rippleEdit)}
+            tabIndex={-1}
           >
             <RiArrowLeftRightLine />
           </button>

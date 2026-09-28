@@ -18,6 +18,7 @@ export function Toolbar() {
             className={`btn btn-sm flex flex-row items-center gap-1 ${active === id ? 'btn-tab-selected' : ''}`}
             onClick={() => setActive(id)}
             title={`${tool.label} (${index + 1})`}
+            tabIndex={-1}
           >
             <Icon className="text-base" />
           </button>

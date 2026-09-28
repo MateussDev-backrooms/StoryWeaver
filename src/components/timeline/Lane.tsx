@@ -55,9 +55,10 @@ export function Lane({ lane, beatIssueIds }: Props) {
         style={{
           left: LANE_PADDING_LEFT + plusTime * PIXELS_PER_UNIT,
           top: (LANE_HEIGHT - BEAT_HEIGHT) / 2,
-          width: BEAT_HEIGHT, //Square - easier on the eyes
+          width: BEAT_HEIGHT,
           height: BEAT_HEIGHT,
         }}
+        tabIndex={-1}
         onPointerDown={(e) => e.stopPropagation()}
         onClick={(e) => {
           e.stopPropagation();
