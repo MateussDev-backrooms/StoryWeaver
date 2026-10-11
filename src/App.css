@@ -162,6 +162,11 @@ body {
 	border-top: 2px solid var(--base-shadow);
 }
 
+.btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
 .btn-sm {
 	padding: 0.1rem;
 }
