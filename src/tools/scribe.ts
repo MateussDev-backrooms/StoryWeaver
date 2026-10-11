@@ -1,12 +1,12 @@
 import { deleteTool } from "./delete";
 import type { Tool, ToolGesture } from "./types";
 import {
+    RiArrowRightUpLongFill,
 	RiCursorFill,
 	RiQuillPenFill,
 	RiScissorsFill,
 	RiShape2Line,
 } from "react-icons/ri";
-import { TbNeedleThread } from "react-icons/tb";
 import { weaver } from "./weaver";
 import { boxSelect } from "./boxSelect";
 import { quill } from "./quill";
@@ -28,7 +28,7 @@ export const scribe: Tool = {
 	},
 	getCursorIcon: (m) => {
 		if (m.ctrl) return RiScissorsFill;
-		if (m.alt) return TbNeedleThread;
+		if (m.alt) return RiArrowRightUpLongFill;
 		if (m.shift) return RiShape2Line;
 		return RiQuillPenFill;
 	},

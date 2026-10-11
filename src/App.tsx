@@ -16,7 +16,7 @@ import { CharacterMenu } from "./components/timeline/menu/CharacterMenu";
 
 import { useStore as useZustandStore } from "zustand";
 import { useStore } from "./store/store";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useModalStore } from "./store/useModalStore";
 import { downloadProject, parseProjectFile } from "./lib/persistence";
 import { throttle } from "./lib/throttle";
@@ -27,6 +27,7 @@ import { useToastStore } from "./store/useToastStore";
 import { ToastHost } from "./components/common/ToastHost";
 import { useToolStore } from "./store/useToolStore";
 import { SectionBar } from "./components/timeline/menu/SectionBar";
+import { Narrative } from "./components/narrative/Narrative";
 
 function App() {
 	const { issues } = useValidation();
@@ -45,11 +46,15 @@ function App() {
 	const rippleEdit = useToolStore((s) => s.rippleEdit);
 	const setRippleEdit = useToolStore((s) => s.setRippleEdit);
 
+	//View switching (Timeline, Narrative, Statistics)
+
+	let [currentView, setCurrentView] = useState(0);
+
 	useEffect(() => {
 		const onKey = (e: KeyboardEvent) => {
 			const target = e.target as HTMLElement | null;
 
-            //Ctrl-z in text handled automatically here
+			//Ctrl-z in text handled automatically here
 			if (target?.closest("input, textarea, [contenteditable]")) return;
 
 			const mod = e.ctrlKey || e.metaKey;
@@ -148,96 +153,166 @@ function App() {
 
 	return (
 		<>
-			<nav className="panel m-1 flex flex-row h-fit p-2 bg-amber-300">
-				<h1 className="heading-nav p-0 my-auto">StoryWeaver</h1>
+			{/* This here is permanent for all views */}
+			<nav className="panel panel-sm m-1 flex flex-row h-fit p-1">
+				<h1 className="heading-nav p-0 my-auto m-1">StoryWeaver</h1>
 
 				<div className="mx-auto">
 					<div className="flex flex-row">
 						<button
-							className="btn btn-tab-selected flex flex-row items-center"
+							className={`btn btn-md flex flex-row items-center ${currentView === 0 ? "btn-tab-selected" : ""}`}
 							tabIndex={-1}
+                            onClick={() => setCurrentView(0)}
 						>
-							{" "}
-							<RiTimelineView className="m-1"></RiTimelineView>{" "}
+							<RiTimelineView className="m-1"></RiTimelineView>
 							Timeline
 						</button>
 						<button
-							className="btn flex flex-row items-center"
+							className={`btn btn-md flex flex-row items-center ${currentView === 1 ? "btn-tab-selected" : ""}`}
 							tabIndex={-1}
+                            onClick={() => setCurrentView(1)}
 						>
-							{" "}
-							<RiPencilLine className="m-1"></RiPencilLine>{" "}
+							<RiPencilLine className="m-1"></RiPencilLine>
 							Narrative
 						</button>
 						<button
-							className="btn flex flex-row items-center"
+							className={`btn btn-md flex flex-row items-center ${currentView === 2 ? "btn-tab-selected" : ""}`}
 							tabIndex={-1}
+                            onClick={() => setCurrentView(2)}
 						>
-							{" "}
-							<RiPieChart2Line className="m-1"></RiPieChart2Line>{" "}
+							<RiPieChart2Line className="m-1"></RiPieChart2Line>
 							Statistics
 						</button>
 					</div>
 				</div>
 
-				<FileMenu />
+                <div className="my-auto">
+				    <FileMenu/>
+                </div>
 			</nav>
 
 			<ToastHost />
 			<ModalHost />
 
-			<div className="panel panel-sm flex flex-row m-1">
-				{/* Menu bar Right below navbar (TODO: Move to timeline) */}
+            {/* Views */}
+			{currentView === 0 ? (
+				<div>
+					<div className="panel panel-sm flex flex-row m-1">
+						{/* Menu bar*/}
 
-				{/* Undo-Redo */}
-				<div className="shading-inverted bg-slate-400 p-[0.2rem] flex flex-row text-xl">
-					<button
-						className="btn btn-sm flex flex-row items-center gap-1"
-						title="Undo (Ctrl+Z)"
-						onClick={() => undo()}
-						disabled={!canUndo}
-						tabIndex={-1}
-					>
-						<RiArrowGoBackFill />
-					</button>
-					<button
-						className="btn btn-sm flex flex-row items-center gap-1"
-						title="Redo (Ctrl+Shift+Z)"
-						onClick={() => redo()}
-						disabled={!canRedo}
-						tabIndex={-1}
-					>
-						<RiArrowGoForwardFill />
-					</button>
-				</div>
+						{/* Undo-Redo */}
+						<div className="shading-inverted bg-slate-400 p-[0.2rem] flex flex-row text-xl">
+							<button
+								className="btn btn-sm flex flex-row items-center gap-1"
+								title="Undo (Ctrl+Z)"
+								onClick={() => undo()}
+								disabled={!canUndo}
+								tabIndex={-1}
+							>
+								<RiArrowGoBackFill />
+							</button>
+							<button
+								className="btn btn-sm flex flex-row items-center gap-1"
+								title="Redo (Ctrl+Shift+Z)"
+								onClick={() => redo()}
+								disabled={!canRedo}
+								tabIndex={-1}
+							>
+								<RiArrowGoForwardFill />
+							</button>
+						</div>
 
-				{/* Toolbar */}
-				<div className="shading-inverted bg-slate-500 p-[0.2rem] flex flex-row text-xl">
-					<Toolbar></Toolbar>
-				</div>
+						{/* Toolbar */}
+						<div className="shading-inverted bg-slate-500 p-[0.2rem] flex flex-row text-xl">
+							<Toolbar></Toolbar>
+						</div>
 
-				<div className="shading-inverted bg-slate-500 p-[0.2rem] flex flex-row text-xl">
-					<button
-						className={`btn btn-sm ${rippleEdit ? "btn-tab-selected" : ""}`}
-						title="Ripple edit — moves also shift subsequent beats"
-						onClick={() => setRippleEdit(!rippleEdit)}
-						tabIndex={-1}
-					>
-						<RiArrowLeftRightLine />
-					</button>
-				</div>
+						<div className="shading-inverted bg-slate-500 p-[0.2rem] flex flex-row text-xl">
+							<button
+								className={`btn btn-sm ${rippleEdit ? "btn-tab-selected" : ""}`}
+								title="Ripple edit — moves also shift subsequent beats"
+								onClick={() => setRippleEdit(!rippleEdit)}
+								tabIndex={-1}
+							>
+								<RiArrowLeftRightLine />
+							</button>
+						</div>
 
-				<div className="shading-inverted bg-slate-400 p-[0.2rem] flex flex-row text-xl max-w-[75%]">
-					<SectionBar />
-				</div>
+						<div className="shading-inverted bg-slate-400 p-[0.2rem] flex flex-row text-xl max-w-[75%]">
+							<SectionBar />
+						</div>
 
-				<div className="ml-auto">
-					<CharacterMenu />
+						<div className="ml-auto">
+							<CharacterMenu />
+						</div>
+					</div>
+					<div className="timeline h-[84vh] shading-inverted p-0 m-1 bg-[#bbbbbb] overflow-y-auto">
+						<Timeline />
+					</div>
 				</div>
-			</div>
-			<div className="timeline h-[80vh] shading-inverted p-0 m-1 bg-[#bbbbbb] overflow-y-auto">
-				<Timeline />
-			</div>
+			) : currentView === 1 ? (
+				<div>
+                    <div className="panel panel-sm flex flex-row m-1">
+						{/* Menu bar */}
+
+						{/* Undo-Redo */}
+						<div className="shading-inverted bg-slate-400 p-[0.2rem] flex flex-row text-xl">
+							<button
+								className="btn btn-sm flex flex-row items-center gap-1"
+								title="Undo (Ctrl+Z)"
+								onClick={() => undo()}
+								disabled={!canUndo}
+								tabIndex={-1}
+							>
+								<RiArrowGoBackFill />
+							</button>
+							<button
+								className="btn btn-sm flex flex-row items-center gap-1"
+								title="Redo (Ctrl+Shift+Z)"
+								onClick={() => redo()}
+								disabled={!canRedo}
+								tabIndex={-1}
+							>
+								<RiArrowGoForwardFill />
+							</button>
+						</div>
+
+						
+					</div>
+					<div className="narrative h-[80vh] shading-inverted p-0 m-1 bg-[#bbbbbb] overflow-y-auto">
+						<Narrative />
+					</div>
+				</div>
+			) : (
+				<div>
+                    <div className="panel panel-sm flex flex-row m-1">
+						{/* Menu bar */}
+
+						{/* Undo-Redo */}
+						<div className="shading-inverted bg-slate-400 p-[0.2rem] flex flex-row text-xl">
+							<button
+								className="btn btn-sm flex flex-row items-center gap-1"
+								title="Undo (Ctrl+Z)"
+								tabIndex={-1}
+							>
+								<RiArrowGoBackFill />
+							</button>
+							<button
+								className="btn btn-sm flex flex-row items-center gap-1"
+								title="Redo (Ctrl+Shift+Z)"
+								tabIndex={-1}
+							>
+								<RiArrowGoForwardFill />
+							</button>
+						</div>
+
+						
+					</div>
+					<div className="statistics h-[80vh] shading-inverted p-0 m-1 bg-[#bbbbbb] overflow-y-auto">
+						<h1>Statistics</h1>
+					</div>
+				</div>
+			)}
 			<div className="panel flex flex-row m-1">{/* Footer */}</div>
 
 			<ErrorPanel issues={issues} />

@@ -9,11 +9,11 @@ import type { Lane, Beat } from "../../types/types";
 import { useStore } from "../../store/store";
 
 interface Props {
-	visLanes: Lane[];
+	lanes: Lane[];
 	allLanes: Lane[];
 }
 
-export function Arrows({ visLanes: lanes, allLanes }: Props) {
+export function Arrows({ lanes, allLanes }: Props) {
 	const links = useStore((s) => s.project.links);
 
 	const colorByLane = new Map(allLanes.map((l) => [l.id, l.color]));
@@ -30,26 +30,36 @@ export function Arrows({ visLanes: lanes, allLanes }: Props) {
 
 	const height = RULER_HEIGHT + lanes.length * LANE_HEIGHT;
 
+	const shadow = 50;
+	const shadowOff = -2;
+
 	return (
 		<svg
 			className="absolute pointer-events-none overflow-visible"
 			style={{ left: 0, top: 0, width: "100%", height }}
 		>
 			<defs>
-				{lanes.map((lane) => (
-					<marker
-						key={lane.id}
-						id={`arrow-${lane.id}`}
-						viewBox="0 0 10 10"
-						refX="9"
-						refY="5"
-						markerWidth="7"
-						markerHeight="7"
-						orient="auto-start-reverse"
-					>
-						<path d="M0,0 L10,5 L0,10 z" fill={lane.color} />
-					</marker>
-				))}
+				{lanes.map((lane) => {
+					const colDark = rgbToHex(
+						hexToRgb(lane.color)?.r - shadow,
+						hexToRgb(lane.color)?.g - shadow,
+						hexToRgb(lane.color)?.b - shadow,
+					);
+					return (
+						<marker
+							key={lane.id}
+							id={`arrow-${lane.id}`}
+							viewBox="0 0 10 10"
+							refX="9"
+							refY="5"
+							markerWidth="7"
+							markerHeight="7"
+							orient="auto-start-reverse"
+						>
+							<path d="M0,0 L10,5 L0,10 z" fill={lane.color} stroke={colDark} />
+						</marker>
+					);
+				})}
 			</defs>
 
 			{links.map((link) => {
@@ -77,6 +87,13 @@ export function Arrows({ visLanes: lanes, allLanes }: Props) {
 				const markerId = `arrow-${from.laneId}`;
 				const color = colorByLane.get(from.laneId) ?? "#525252";
 
+				const colDark = rgbToHex(
+					hexToRgb(color)?.r - shadow,
+					hexToRgb(color)?.g - shadow,
+					hexToRgb(color)?.b - shadow,
+				);
+				const dShad = `M ${x1} ${y1 - shadowOff} L ${midX} ${y1 - shadowOff} L ${midX} ${y2 - shadowOff} L ${x2} ${y2 - shadowOff}`;
+
 				return (
 					<g key={link.id}>
 						<path
@@ -87,6 +104,15 @@ export function Arrows({ visLanes: lanes, allLanes }: Props) {
 							pointerEvents="stroke"
 							data-link-id={link.id}
 							style={{ cursor: "pointer" }}
+						/>
+						<path
+							d={dShad}
+							fill="none"
+							stroke={colDark}
+							strokeWidth={3}
+							markerEnd={`url(#${markerId})`}
+							strokeLinejoin="miter"
+							pointerEvents="none"
 						/>
 						<path
 							d={d}
@@ -102,4 +128,23 @@ export function Arrows({ visLanes: lanes, allLanes }: Props) {
 			})}
 		</svg>
 	);
+}
+
+function componentToHex(c: any) {
+	var hex = c.toString(16);
+	return hex.length == 1 ? "0" + hex : hex;
+}
+
+function rgbToHex(r: number, g: number, b: number) {
+	return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+}
+
+function hexToRgb(hex: string) {
+	var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+	if (result == null) throw Error("Invalid Hex: " + hex);
+	return {
+		r: parseInt(result[1], 16),
+		g: parseInt(result[2], 16),
+		b: parseInt(result[3], 16),
+	};
 }

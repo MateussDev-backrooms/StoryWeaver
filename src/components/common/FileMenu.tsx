@@ -45,10 +45,12 @@ export function FileMenu() {
 		});
 	};
 
+    const projectName = useStore((s) => s.project.name);
+
 	return (
 		<div ref={ref} className="relative">
 			<button
-				className={`btn flex flex-row items-center gap-1 ${open ? "btn-tab-selected" : ""}`}
+				className={`btn btn-md flex flex-row items-center gap-1 ${open ? "btn-tab-selected" : ""}`}
 				onClick={() => setOpen((v) => !v)}
 				title="File"
 			>
@@ -57,26 +59,26 @@ export function FileMenu() {
 
 			{open && (
 				<div className="file-menu panel">
-					<h4 className="heading-4">Project Name</h4>
-					<button className="btn btn-sm" onClick={handleNew}>
+					<h4 className="heading-4">{projectName || "New Project"}</h4>
+					<button className="btn btn-ls" onClick={handleNew}>
 						<RiFileAddFill />
 						New Project
 					</button>
 					<button
-						className="btn btn-sm"
+						className="btn btn-ls"
 						onClick={() => inputRef.current?.click()}
 					>
 						<RiFolderOpenFill />
 						Open Project
 					</button>
-					<button className="btn btn-sm" onClick={handleExport}>
+					<button className="btn btn-ls" onClick={handleExport}>
 						<RiSave2Fill />
 						Export Project
 					</button>
 
 					<hr className="my-2"></hr>
 
-					<button className="btn btn-sm">
+					<button className="btn btn-ls">
 						<RiSettings2Fill />
 						Project settings
 					</button>

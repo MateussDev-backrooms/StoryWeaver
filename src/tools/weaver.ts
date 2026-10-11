@@ -1,11 +1,12 @@
 import { TbNeedleThread } from "react-icons/tb";
 import type { Tool } from "./types";
 import { useToolStore } from "../store/useToolStore";
+import { RiArrowRightUpLongFill } from "react-icons/ri";
 
 export const weaver: Tool = {
 	id: "weaver",
 	label: "Weaver",
-	icon: TbNeedleThread,
+	icon: RiArrowRightUpLongFill,
 	cursor: "crosshair",
 	intent: () => "link",
 	getCursorIcon: () => TbNeedleThread,

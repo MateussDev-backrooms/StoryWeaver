@@ -86,7 +86,7 @@ export function Timeline() {
 							style={{ width: canvasWidth, height: canvasHeight }}
 						>
 							<Ruler maxTime={maxTime} />
-							<Arrows visLanes={lanes} allLanes={allLanes} />
+							<Arrows lanes={lanes} allLanes={allLanes} />
 							<MarkerLines laneCount={lanes.length} />
 							{lanes.map((lane) => (
 								<Lane
